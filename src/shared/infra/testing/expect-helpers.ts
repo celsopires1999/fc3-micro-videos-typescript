@@ -1,9 +1,6 @@
-// import { extend, objectContaining } from "expect";
 import { ClassValidatorFields } from "../../domain/validators/class-validator-fields";
-import {
-  EntityValidationError,
-  FieldsErrors,
-} from "../../domain/validators/validator-fields-interface";
+import { EntityValidationError } from "../../domain/validators/validation.error";
+import { FieldsErrors } from "../../domain/validators/validator-fields-interface";
 
 type Received =
   | { validator: ClassValidatorFields<any>; data: any }

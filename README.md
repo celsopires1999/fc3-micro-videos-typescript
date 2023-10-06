@@ -4,7 +4,7 @@ Esse microsserviço é parte do projeto prático do curso Full Cycle 3.0
 
 # Situação atual
 
-No momento apenas os testes da entidade category estão disponíveis
+No momento estão sendo atendidos os requisitos do desafio "Repositório e validação da entidade Categoria"
 
 # Como usar
 
@@ -22,6 +22,14 @@ docker compose exec app bash
 
 ```bash
 npm run test
+```
+
+- resultado esperado:
+
+```bash
+Test Suites: 11 passed, 11 total
+Tests:       87 passed, 87 total
+Snapshots:   0 total
 ```
 
 ```bash

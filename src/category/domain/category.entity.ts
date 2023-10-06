@@ -1,21 +1,22 @@
 import { Entity } from "../../shared/domain/entity";
-import { EntityValidationError } from "../../shared/domain/validators/validation.error";
 import { ValueObject } from "../../shared/domain/value-object";
 import { Uuid } from "../../shared/domain/value-objects/uuid.vo";
+import { CategoryFakeBuilder } from "./category-fake.builder";
 import { CategoryValidatorFactory } from "./category.validator";
 
 export type CategoryConstructorProps = {
   category_id?: Uuid;
   name: string;
-  description?: string;
+  description?: string | null;
   is_active?: boolean;
   created_at?: Date;
 };
 
-export type CategoryCreateCommand = Omit<
-  CategoryConstructorProps,
-  "category_id" | "created_at"
->;
+export type CategoryCreateCommand = {
+  name: string;
+  description?: string | null;
+  is_active?: boolean;
+};
 
 export class Category extends Entity {
   category_id: Uuid;
@@ -33,40 +34,41 @@ export class Category extends Entity {
     this.created_at = props.created_at ?? new Date();
   }
 
+  get entity_id(): ValueObject {
+    return this.category_id;
+  }
+
   static create(props: CategoryCreateCommand): Category {
     const category = new Category(props);
-    Category.validate(category);
+    //category.validate();
+    category.validate(["name"]);
     return category;
   }
 
-  changeName(name: string) {
+  changeName(name: string): void {
     this.name = name;
-    Category.validate(this);
+    this.validate(["name"]);
   }
 
   changeDescription(description: string): void {
     this.description = description;
-    Category.validate(this);
   }
 
-  activate(): void {
+  activate() {
     this.is_active = true;
   }
 
-  deactivate(): void {
+  deactivate() {
     this.is_active = false;
   }
 
-  static validate(entity: Category): void {
+  validate(fields?: string[]) {
     const validator = CategoryValidatorFactory.create();
-    const isValid = validator.validate(entity);
-    if (!isValid) {
-      throw new EntityValidationError(validator.errors);
-    }
+    return validator.validate(this.notification, this, fields);
   }
 
-  get entity_id(): ValueObject {
-    return this.category_id;
+  static fake() {
+    return CategoryFakeBuilder;
   }
 
   toJSON() {

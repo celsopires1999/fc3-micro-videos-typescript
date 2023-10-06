@@ -1,9 +1,11 @@
-export type FieldsErrors = {
-  [field: string]: string[];
-};
+import { Notification } from "./notification";
 
-export interface IValidatorFields<PropsValidated> {
-  errors: FieldsErrors;
-  validatedData: PropsValidated;
-  validate(data: any): boolean;
+export type FieldsErrors =
+  | {
+      [field: string]: string[];
+    }
+  | string;
+
+export interface IValidatorFields {
+  validate(notification: Notification, data: any, fields: string[]): boolean;
 }

@@ -9,7 +9,7 @@ No momento estão sendo atendidos os requisitos do desafio "Repositório e valid
 # Como usar
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 - Entrar no container da aplicação
@@ -32,6 +32,16 @@ Tests:       87 passed, 87 total
 Snapshots:   0 total
 ```
 
+- Verificar se há erro de TypeScript
+
 ```bash
 npx tsc --noEmit
+```
+
+- Sair do container teclando CRTL+d
+
+- Eliminar os containers criados
+
+```bash
+docker compose down
 ```

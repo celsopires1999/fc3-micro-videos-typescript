@@ -4,7 +4,11 @@
   "description": "Esse microsserviço é parte do projeto prático do curso Full Cycle 3.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:cov": "npm run test -- --coverage",
+    "tsc:check": "npm run tsc -- --noEmit",
+    "tsc": "tsc",
+    "clean:tsc": "rm tsconfig.tsbuildinfo"
   },
   "keywords": [],
   "author": "",

@@ -14,15 +14,20 @@ import { CATEGORY_PROVIDERS } from "../categories.providers";
 describe("CategoriesController Integration Tests", () => {
   let controller: CategoriesController;
   let repository: ICategoryRepository;
+  let module: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [ConfigModule.forRoot(), DatabaseModule, CategoriesModule],
     }).compile();
     controller = module.get<CategoriesController>(CategoriesController);
     repository = module.get<ICategoryRepository>(
       CATEGORY_PROVIDERS.REPOSITORIES.CATEGORY_REPOSITORY.provide,
     );
+  });
+
+  afterEach(async () => {
+    await module.close();
   });
 
   it("should be defined", () => {

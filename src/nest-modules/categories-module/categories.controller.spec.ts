@@ -6,13 +6,18 @@ import { ConfigModule } from "../config-module/config.module";
 
 describe("CategoriesController", () => {
   let controller: CategoriesController;
+  let module: TestingModule;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [ConfigModule.forRoot(), DatabaseModule, CategoriesModule],
     }).compile();
 
     controller = module.get<CategoriesController>(CategoriesController);
+  });
+
+  afterEach(async () => {
+    await module.close();
   });
 
   it("should be defined", () => {

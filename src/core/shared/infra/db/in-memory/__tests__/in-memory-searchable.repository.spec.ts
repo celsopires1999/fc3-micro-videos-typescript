@@ -42,7 +42,7 @@ class StubInMemorySearchableRepository extends InMemorySearchableRepository<
 
   protected async applyFilter(
     items: StubEntity[],
-    filter: string | null
+    filter: string | null,
   ): Promise<StubEntity[]> {
     if (!filter) {
       return items;
@@ -63,7 +63,7 @@ describe("InMemorySearchableRepository Unit Tests", () => {
   beforeEach(() => (repository = new StubInMemorySearchableRepository()));
 
   describe("applyFilter method", () => {
-    it("should no filter items when filter param is null", async () => {
+    it("should not filter items when filter param is null", async () => {
       const items = [new StubEntity({ name: "name value", price: 5 })];
       const spyFilterMethod = jest.spyOn(items, "filter" as any);
       const itemsFiltered = await repository["applyFilter"](items, null);
@@ -95,7 +95,7 @@ describe("InMemorySearchableRepository Unit Tests", () => {
   });
 
   describe("applySort method", () => {
-    it("should no sort items", async () => {
+    it("should not sort items", async () => {
       const items = [
         new StubEntity({ name: "b", price: 5 }),
         new StubEntity({ name: "a", price: 5 }),
@@ -160,7 +160,7 @@ describe("InMemorySearchableRepository Unit Tests", () => {
           total: 16,
           current_page: 1,
           per_page: 15,
-        })
+        }),
       );
     });
 
@@ -174,7 +174,7 @@ describe("InMemorySearchableRepository Unit Tests", () => {
       repository.items = items;
 
       let result = await repository.search(
-        new SearchParams({ page: 1, per_page: 2, filter: "TEST" })
+        new SearchParams({ page: 1, per_page: 2, filter: "TEST" }),
       );
       expect(result).toStrictEqual(
         new SearchResult({
@@ -182,11 +182,11 @@ describe("InMemorySearchableRepository Unit Tests", () => {
           total: 3,
           current_page: 1,
           per_page: 2,
-        })
+        }),
       );
 
       result = await repository.search(
-        new SearchParams({ page: 2, per_page: 2, filter: "TEST" })
+        new SearchParams({ page: 2, per_page: 2, filter: "TEST" }),
       );
       expect(result).toStrictEqual(
         new SearchResult({
@@ -194,7 +194,7 @@ describe("InMemorySearchableRepository Unit Tests", () => {
           total: 3,
           current_page: 2,
           per_page: 2,
-        })
+        }),
       );
     });
 
@@ -272,7 +272,7 @@ describe("InMemorySearchableRepository Unit Tests", () => {
         async ({ search_params, search_result }) => {
           const result = await repository.search(search_params);
           expect(result).toStrictEqual(search_result);
-        }
+        },
       );
     });
 

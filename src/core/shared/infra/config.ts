@@ -7,10 +7,18 @@ export class Config {
   static db() {
     Config.readEnv();
 
+    if (Config.env.DB_VENDOR === "sqlite") {
+      return {
+        dialect: "sqlite" as any,
+        host: Config.env.DB_HOST,
+        logging: Config.env.DB_LOGGING === "true",
+      };
+    }
+
     return {
       dialect: "sqlite" as any,
-      host: Config.env.DB_HOST,
-      logging: Config.env.DB_LOGGING === "true",
+      host: ":memory:",
+      logging: false,
     };
   }
 

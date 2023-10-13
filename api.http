@@ -1,0 +1,16 @@
+## valid uuid = 8f4b7b9c-3f7a-4b6c-8b0c-1c9c5b8b9b6a
+
+### Create Category
+POST http://localhost:3000/categories
+Content-Type: application/json
+
+{
+    "name": "Category 1",
+    "description": "Description 1"
+}
+
+###
+GET http://localhost:3000/categories
+
+###
+GET http://localhost:3000/categories/b8ee6449-b662-4245-9f12-430dfb74df6c

@@ -208,6 +208,17 @@ const config: Config = {
   collectCoverageFrom: ["**/*.(t|j)s"],
   // coverageDirectory: '../coverage',
   coverageDirectory: "<rootDir>../__coverage",
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    ".interface.ts",
+    "-interface.ts",
+    "shared/testing",
+    "shared-module/testing",
+    "validator-rules.ts",
+    "-fixture.ts",
+    ".input.ts",
+    ".d.ts",
+  ],
   coverageReporters: ["text", "html"],
   coverageThreshold: {
     global: {

@@ -43,7 +43,7 @@ describe("CategoriesController Integration Tests", () => {
   });
 
   afterEach(async () => {
-    await module.close();
+    await module?.close();
   });
 
   it("should be defined", () => {

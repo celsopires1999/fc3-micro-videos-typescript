@@ -1,4 +1,5 @@
-import { CategoryModel } from "@core/category/infra/db/sequelize/category.model";
+// import { CategoryModel } from "@core/category/infra/db/sequelize/category.model";
+import { CategoryModel } from "../../core/category/infra/db/sequelize/category.model";
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { SequelizeModule } from "@nestjs/sequelize";

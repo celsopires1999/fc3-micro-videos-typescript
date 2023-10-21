@@ -7,7 +7,7 @@ import { startApp } from "../../src/nest-modules/shared-module/testing/helpers";
 describe("CategoriesController (e2e)", () => {
   describe("/delete/:id (DELETE)", () => {
     const appHelper = startApp();
-    describe("should a response error when id is invalid or not found", () => {
+    describe("should return a response error when id is invalid or not found", () => {
       const arrange = [
         {
           id: "88ff2587-ce5a-4769-a8c6-1d63d29c5f7a",

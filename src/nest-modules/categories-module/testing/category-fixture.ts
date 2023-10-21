@@ -378,6 +378,42 @@ export class ListCategoriesFixture {
           },
         },
       },
+      {
+        send_data: {
+          page: 1,
+          per_page: 2,
+          sort: "name",
+          sort_dir: "desc",
+          filter: "a",
+        },
+        expected: {
+          entities: [entitiesMap.a, entitiesMap.AaA],
+          meta: {
+            total: 3,
+            current_page: 1,
+            last_page: 2,
+            per_page: 2,
+          },
+        },
+      },
+      {
+        send_data: {
+          page: 2,
+          per_page: 2,
+          sort: "name",
+          sort_dir: "desc",
+          filter: "a",
+        },
+        expected: {
+          entities: [entitiesMap.AAA],
+          meta: {
+            total: 3,
+            current_page: 2,
+            last_page: 2,
+            per_page: 2,
+          },
+        },
+      },
     ];
 
     return { arrange, entitiesMap };

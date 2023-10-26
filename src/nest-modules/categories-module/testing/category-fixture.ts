@@ -1,4 +1,5 @@
-import { Category } from "../../../core/category/domain/category.entity";
+import { SortDirection } from "@core/shared/domain/repository/search-params";
+import { Category } from "../../../core/category/domain/category.aggregate";
 
 const _keysInResponse = [
   "id",
@@ -383,7 +384,7 @@ export class ListCategoriesFixture {
           page: 1,
           per_page: 2,
           sort: "name",
-          sort_dir: "desc",
+          sort_dir: "desc" as SortDirection,
           filter: "a",
         },
         expected: {
@@ -401,7 +402,7 @@ export class ListCategoriesFixture {
           page: 2,
           per_page: 2,
           sort: "name",
-          sort_dir: "desc",
+          sort_dir: "desc" as SortDirection,
           filter: "a",
         },
         expected: {

@@ -1,4 +1,4 @@
-import { Category } from "@core/category/domain/category.entity";
+import { Category } from "@core/category/domain/category.aggregate";
 import { ICategoryRepository } from "@core/category/domain/category.repository";
 import request from "supertest";
 import * as CategoryProviders from "../../src/nest-modules/categories-module/categories.providers";

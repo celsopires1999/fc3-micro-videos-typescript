@@ -1,7 +1,6 @@
 import { EntityValidationError } from "../../../../../shared/domain/validators/validation.error";
-import { Uuid } from "../../../../../shared/domain/value-objects/uuid.vo";
 import { setupSequelize } from "../../../../../shared/infra/testing/helpers";
-import { Category } from "../../../../domain/category.entity";
+import { Category, CategoryId } from "../../../../domain/category.aggregate";
 import { CategoryModelMapper } from "../category-model-mapper";
 import { CategoryModel } from "../category.model";
 
@@ -17,7 +16,7 @@ describe("CategoryModelMapper Integration Tests", () => {
     try {
       CategoryModelMapper.toEntity(model);
       fail(
-        "The category is valid, but it has to throw a EntityValidationError"
+        "The category is valid, but it has to throw a EntityValidationError",
       );
     } catch (e) {
       expect(e).toBeInstanceOf(EntityValidationError);
@@ -41,12 +40,12 @@ describe("CategoryModelMapper Integration Tests", () => {
     const aggregate = CategoryModelMapper.toEntity(model);
     expect(aggregate.toJSON()).toStrictEqual(
       new Category({
-        category_id: new Uuid("5490020a-e866-4229-9adc-aa44b83234c4"),
+        category_id: new CategoryId("5490020a-e866-4229-9adc-aa44b83234c4"),
         name: "some value",
         description: "some description",
         is_active: true,
         created_at,
-      }).toJSON()
+      }).toJSON(),
     );
   });
 });

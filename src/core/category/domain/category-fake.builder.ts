@@ -1,5 +1,5 @@
 import { Chance } from "chance";
-import { Category } from "./category.entity";
+import { Category } from "./category.aggregate";
 import { Uuid } from "../../shared/domain/value-objects/uuid.vo";
 
 type PropOrFactory<T> = T | ((index: number) => T);
@@ -115,7 +115,7 @@ export class CategoryFakeBuilder<TBuild = any> {
     const privateProp = `_${prop}` as keyof this;
     if (!this[privateProp] && optional.includes(prop)) {
       throw new Error(
-        `Property ${prop} does not have a factory, use "with" method instead`
+        `Property ${prop} does not have a factory, use "with" method instead`,
       );
     }
     return this.callFactory(this[privateProp], 0);

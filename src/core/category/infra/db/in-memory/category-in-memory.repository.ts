@@ -1,7 +1,7 @@
 import { SortDirection } from "../../../../shared/domain/repository/search-params";
 import { Uuid } from "../../../../shared/domain/value-objects/uuid.vo";
 import { InMemorySearchableRepository } from "../../../../shared/infra/db/in-memory/in-memory.repository";
-import { Category } from "../../../domain/category.entity";
+import { Category } from "../../../domain/category.aggregate";
 import {
   CategoryFilter,
   ICategoryRepository,
@@ -15,7 +15,7 @@ export class CategoryInMemoryRepository
 
   protected async applyFilter(
     items: Category[],
-    filter: CategoryFilter
+    filter: CategoryFilter,
   ): Promise<Category[]> {
     if (!filter) {
       return items;
@@ -32,7 +32,7 @@ export class CategoryInMemoryRepository
   protected applySort(
     items: Category[],
     sort: string | null,
-    sort_dir: SortDirection | null
+    sort_dir: SortDirection | null,
   ) {
     return sort
       ? super.applySort(items, sort, sort_dir)

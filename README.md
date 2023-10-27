@@ -18,24 +18,26 @@ docker compose up -d --build
 docker compose exec app bash
 ```
 
-- Executar os testes e verificar se há algum erro de typescript
+- Executar os testes
 
 ```bash
-npm run test
+npm run test:cov
 ```
+
+- o relatório de cobertura dos testes será gravado na pasta `_coverage` e também exibido no terminal.
 
 - resultado esperado:
 
 ```bash
-Test Suites: 11 passed, 11 total
-Tests:       87 passed, 87 total
+Test Suites: 22 passed, 22 total
+Tests:       109 passed, 109 total
 Snapshots:   0 total
 ```
 
 - Verificar se há erro de TypeScript
 
 ```bash
-npx tsc --noEmit
+npm run tsc:check
 ```
 
 - Sair do container teclando CRTL+d

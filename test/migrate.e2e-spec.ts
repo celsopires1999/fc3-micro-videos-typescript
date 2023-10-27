@@ -6,7 +6,7 @@ import { MigrationsModule } from "../src/nest-modules/database-module/migrations
 
 describe("Migrate (e2e)", () => {
   let umzug: Umzug;
-  const totalMigrations = 1;
+  const totalMigrations = 2;
   let moduleFixture: TestingModule;
 
   beforeEach(async () => {
@@ -26,27 +26,25 @@ describe("Migrate (e2e)", () => {
     await umzug.down({ to: 0 as any });
     const result = await umzug.up();
     expect(result).toHaveLength(totalMigrations);
-    expect(result[0].name).toBe(
+
+    const foundMigrations = [result[0].name, result[1].name];
+    const expectedMigrations = [
+      "2023.10.28T22.20.59.create-cast-members-table.ts",
       "2023.10.21T21.53.18.create-categories-table.ts",
-    );
-    expect(
-      result[0].path.endsWith(
-        "category/infra/db/sequelize/migrations/2023.10.21T21.53.18.create-categories-table.ts",
-      ),
-    ).toBeTruthy();
+    ];
+    expect(foundMigrations).toEqual(expectedMigrations);
   });
 
   test("down command", async () => {
     await umzug.up();
     const result = await umzug.down({ to: 0 as any });
     expect(result).toHaveLength(totalMigrations);
-    expect(result[0].name).toBe(
+
+    const foundMigrations = [result[0].name, result[1].name];
+    const expectedMigrations = [
       "2023.10.21T21.53.18.create-categories-table.ts",
-    );
-    expect(
-      result[0].path.endsWith(
-        "category/infra/db/sequelize/migrations/2023.10.21T21.53.18.create-categories-table.ts",
-      ),
-    ).toBeTruthy();
+      "2023.10.28T22.20.59.create-cast-members-table.ts",
+    ];
+    expect(foundMigrations).toEqual(expectedMigrations);
   });
 });

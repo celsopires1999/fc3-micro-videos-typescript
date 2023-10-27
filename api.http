@@ -1,16 +1,100 @@
-## valid uuid = 8f4b7b9c-3f7a-4b6c-8b0c-1c9c5b8b9b6a
+## valid uuid = b8ee6449-b662-4245-9f12-430dfb74df6c
 
-### Create Category
+###### Categories ######
+
+### Criar uma categoria ###
 POST http://localhost:3000/categories
 Content-Type: application/json
 
 {
-    "name": "Category 1",
-    "description": "Description 1"
+    "name": "Movie 1"
 }
 
-###
+### Listar ###
 GET http://localhost:3000/categories
 
-###
-GET http://localhost:3000/categories/b8ee6449-b662-4245-9f12-430dfb74df6c
+### Ler uma category ###
+GET http://localhost:3000/categories/a4db5aa5-26c1-4620-98cb-74ab036d0adb
+
+### Ler inválido ### 
+GET http://localhost:3000/categories/fake-id
+
+### Criar uma categoria ###
+POST http://localhost:3000/categories
+Content-Type: application/json
+
+{
+    "name": "Movie 1"
+}
+
+### Alterar uma categoria ###
+PATCH  http://localhost:3000/categories/a4db5aa5-26c1-4620-98cb-74ab036d0adb
+Content-Type: application/json
+
+{
+    "name": "Movie1111"
+}
+
+### Erro na atualização - fake-id ###
+PATCH  http://localhost:3000/categories/fake-id
+Content-Type: application/json
+
+{
+    "name": "Movie1111"
+}
+
+### Exclusão de categoria ###
+DELETE http://localhost:3000/categories/a4db5aa5-26c1-4620-98cb-74ab036d0adb
+Content-Type: application/json
+
+
+###### Cast Members ######
+
+### criar cast member ###
+POST http://localhost:3000/cast-members
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "type": 2
+}
+
+
+### Listar ###
+GET http://localhost:3000/cast-members
+
+### Buscar por type ###
+GET http://localhost:3000/cast-members?filter[type]=2&page=1&per_page=15
+
+### Buscar por name e type ###
+GET http://localhost:3000/cast-members?filter[name]=MaRiA&filter[type]=1&page=1&per_page=15
+
+### Ler inexistente com id válido ###
+GET http://localhost:3000/cast-members/17b1a2ec-15aa-4f89-ab68-495d157ab999
+
+### Id inválido ###
+GET http://localhost:3000/cast-members/fake-id
+
+
+
+### alterar cast member ###
+PATCH http://localhost:3000/cast-members/831bee74-3082-4c7c-afc5-297f13eae33f
+Content-Type: application/json
+
+{
+    "name": "Mary Doe",
+    "type": 2
+}
+
+### alterar id inválido ###
+PATCH http://localhost:3000/cast-members/fake-id
+Content-Type: application/json
+
+{
+    "name": "Error"
+}
+
+### excluir ###
+DELETE http://localhost:3000/cast-members/831bee74-3082-4c7c-afc5-297f13eae33f
+Content-Type: application/json
+

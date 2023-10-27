@@ -5,7 +5,7 @@ describe("CategoryInMemoryRepository", () => {
   let repository: CategoryInMemoryRepository;
 
   beforeEach(() => (repository = new CategoryInMemoryRepository()));
-  it("should no filter items when filter object is null", async () => {
+  it("should not filter items when filter object is null", async () => {
     const items = [Category.fake().aCategory().build()];
     const filterSpy = jest.spyOn(items, "filter" as any);
 

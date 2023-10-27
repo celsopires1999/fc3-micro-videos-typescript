@@ -4,7 +4,7 @@ Esse microsserviço é parte do projeto prático do curso Full Cycle 3.0
 
 # Situação atual
 
-No momento estão sendo atendidos os requisitos do desafio "Repositório e validação da entidade Categoria"
+No momento estão sendo atendidos os requisitos do desafio "Endpoints de Categoria e Cast Member"
 
 # Como usar
 
@@ -12,13 +12,15 @@ No momento estão sendo atendidos os requisitos do desafio "Repositório e valid
 docker compose up -d --build
 ```
 
+- Os arquivos de configuração .env, .env.test e .env.e2e são criados automaticamente com base nos arquivos de exemplo.
+
 - Entrar no container da aplicação
 
 ```bash
 docker compose exec app bash
 ```
 
-- Executar os testes
+- Executar os testes de unidade e integração
 
 ```bash
 npm run test:cov
@@ -29,8 +31,22 @@ npm run test:cov
 - resultado esperado:
 
 ```bash
-Test Suites: 22 passed, 22 total
-Tests:       109 passed, 109 total
+Test Suites: 54 passed, 54 total
+Tests:       287 passed, 287 total
+Snapshots:   0 total
+```
+
+- Executar os testes e2e
+
+```bash
+npm run test:e2e
+```
+
+- resultado esperado:
+
+```bash
+Test Suites: 11 passed, 11 total
+Tests:       64 passed, 64 total
 Snapshots:   0 total
 ```
 

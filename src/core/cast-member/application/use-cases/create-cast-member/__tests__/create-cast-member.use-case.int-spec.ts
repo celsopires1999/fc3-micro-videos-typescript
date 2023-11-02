@@ -23,10 +23,10 @@ describe("CreateCastMemberUseCase Integration Tests", () => {
     });
     let aggregate = await repository.findById(new CategoryId(output.id));
     expect(output).toStrictEqual({
-      id: aggregate.cast_member_id.id,
+      id: aggregate!.cast_member_id.id,
       name: "John Doe",
       type: CastMemberTypes.ACTOR,
-      created_at: aggregate.created_at,
+      created_at: aggregate!.created_at,
     });
 
     output = await useCase.execute({
@@ -35,10 +35,10 @@ describe("CreateCastMemberUseCase Integration Tests", () => {
     });
     aggregate = await repository.findById(new CategoryId(output.id));
     expect(output).toStrictEqual({
-      id: aggregate.cast_member_id.id,
+      id: aggregate!.cast_member_id.id,
       name: "Mary Doe",
       type: CastMemberTypes.DIRECTOR,
-      created_at: aggregate.created_at,
+      created_at: aggregate!.created_at,
     });
   });
 });

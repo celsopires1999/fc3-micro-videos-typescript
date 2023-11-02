@@ -40,22 +40,22 @@ describe("ListCastMembersUseCase Integration Tests", () => {
 
   it("should return output using pagination, sort and filter", async () => {
     const categories = [
-      new CastMember({ name: "a", type: CastMemberType.createAnActor() }),
+      new CastMember({ name: "a", type: CastMemberType.createAnActor()! }),
       new CastMember({
         name: "AAA",
-        type: CastMemberType.createAnActor(),
+        type: CastMemberType.createAnActor()!,
       }),
       new CastMember({
         name: "AaA",
-        type: CastMemberType.createAnActor(),
+        type: CastMemberType.createAnActor()!,
       }),
       new CastMember({
         name: "b",
-        type: CastMemberType.createAnActor(),
+        type: CastMemberType.createAnActor()!,
       }),
       new CastMember({
         name: "c",
-        type: CastMemberType.createAnActor(),
+        type: CastMemberType.createAnActor()!,
       }),
     ];
     await repository.bulkInsert(categories);

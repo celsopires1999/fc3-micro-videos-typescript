@@ -95,13 +95,13 @@ describe("UpdateCastMemberUseCase Integration Tests", () => {
         id: i.expected.id,
         name: i.expected.name,
         type: i.expected.type,
-        created_at: entityUpdated.created_at,
+        created_at: entityUpdated!.created_at,
       });
-      expect(entityUpdated.toJSON()).toStrictEqual({
+      expect(entityUpdated!.toJSON()).toStrictEqual({
         cast_member_id: i.expected.id,
         name: i.expected.name,
         type: i.expected.type,
-        created_at: entityUpdated.created_at,
+        created_at: entityUpdated!.created_at,
       });
     }
   });

@@ -1,6 +1,7 @@
 import { CastMemberType } from "@core/cast-member/domain/cast-member-type.vo";
 import { CastMember } from "@core/cast-member/domain/cast-member.aggregate";
 import { CastMemberInMemoryRepository } from "../cast-member-in-memory.repository";
+import { CastMemberFilter } from "@core/cast-member/domain/cast-member.repository";
 
 describe("CastMemberInMemoryRepository", () => {
   let repository: CastMemberInMemoryRepository;
@@ -10,7 +11,10 @@ describe("CastMemberInMemoryRepository", () => {
     const items = [CastMember.fake().aCastMember().build()];
     const filterSpy = jest.spyOn(items, "filter" as any);
 
-    const itemsFiltered = await repository["applyFilter"](items, null);
+    const itemsFiltered = await repository["applyFilter"](
+      items,
+      null as unknown as CastMemberFilter,
+    );
     expect(filterSpy).not.toHaveBeenCalled();
     expect(itemsFiltered).toStrictEqual(items);
   });
@@ -39,14 +43,14 @@ describe("CastMemberInMemoryRepository", () => {
     const filterSpy = jest.spyOn(items, "filter" as any);
 
     let itemsFiltered = await repository["applyFilter"](items, {
-      type: CastMemberType.createAnActor(),
+      type: CastMemberType.createAnActor()!,
     });
 
     expect(filterSpy).toHaveBeenCalledTimes(1);
     expect(itemsFiltered).toStrictEqual([items[0]]);
 
     itemsFiltered = await repository["applyFilter"](items, {
-      type: CastMemberType.createADirector(),
+      type: CastMemberType.createADirector()!,
     });
     expect(filterSpy).toHaveBeenCalledTimes(2);
     expect(itemsFiltered).toStrictEqual([items[1]]);
@@ -62,7 +66,7 @@ describe("CastMemberInMemoryRepository", () => {
 
     const itemsFiltered = await repository["applyFilter"](items, {
       name: "test",
-      type: CastMemberType.createAnActor(),
+      type: CastMemberType.createAnActor()!,
     });
     expect(itemsFiltered).toStrictEqual([items[0]]);
   });

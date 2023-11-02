@@ -32,7 +32,7 @@ describe("ListCastMembersUseCase Unit Tests", () => {
 
     const entity = CastMember.create({
       name: "John Doe",
-      type: CastMemberType.createADirector(),
+      type: CastMemberType.createADirector()!,
     });
     result = new CastMemberSearchResult({
       items: [entity],
@@ -55,11 +55,11 @@ describe("ListCastMembersUseCase Unit Tests", () => {
     const items = [
       new CastMember({
         name: "test 1",
-        type: CastMemberType.createADirector(),
+        type: CastMemberType.createADirector()!,
       }),
       new CastMember({
         name: "test 2",
-        type: CastMemberType.createAnActor(),
+        type: CastMemberType.createAnActor()!,
         created_at: new Date(new Date().getTime() + 100),
       }),
     ];
@@ -77,22 +77,22 @@ describe("ListCastMembersUseCase Unit Tests", () => {
 
   it("should return output using pagination, sort and filter", async () => {
     const items = [
-      new CastMember({ name: "a", type: CastMemberType.createADirector() }),
+      new CastMember({ name: "a", type: CastMemberType.createADirector()! }),
       new CastMember({
         name: "AAA",
-        type: CastMemberType.createADirector(),
+        type: CastMemberType.createADirector()!,
       }),
       new CastMember({
         name: "AaA",
-        type: CastMemberType.createADirector(),
+        type: CastMemberType.createADirector()!,
       }),
       new CastMember({
         name: "b",
-        type: CastMemberType.createADirector(),
+        type: CastMemberType.createADirector()!,
       }),
       new CastMember({
         name: "c",
-        type: CastMemberType.createADirector(),
+        type: CastMemberType.createADirector()!,
       }),
     ];
     repository.items = items;

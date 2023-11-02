@@ -50,8 +50,11 @@ export class ConfigModule extends NestConfigModule {
     return super.forRoot({
       isGlobal: true,
       envFilePath: [
+        //@ts-expect-error
         ...(Array.isArray(envFilePath) ? envFilePath : [envFilePath]),
+        //@ts-expect-error
         join(process.cwd(), "envs", `.env.${process.env.NODE_ENV}`),
+        //@ts-expect-error
         join(process.cwd(), "envs", `.env`),
       ],
       validationSchema: Joi.object({

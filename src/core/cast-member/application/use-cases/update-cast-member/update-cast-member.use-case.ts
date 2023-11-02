@@ -29,18 +29,14 @@ export class UpdateCastMemberUseCase
     input.name && castMember.changeName(input.name);
 
     if (input.type) {
-      const castMemberTypeResult = CastMemberType.create(input.type);
-      const type = castMemberTypeResult.isOk()
-        ? castMemberTypeResult.unwrap()
-        : null;
+      const [type, errorCastMemberType] = CastMemberType.create(
+        input.type,
+      ).asArray();
 
-      castMember.changeType(type);
+      castMember.changeType(type!);
 
-      castMemberTypeResult.isErr() &&
-        castMember.notification.setError(
-          castMemberTypeResult.unwrapErr(),
-          "type",
-        );
+      errorCastMemberType &&
+        castMember.notification.setError(errorCastMemberType.message, "type");
     }
 
     if (castMember.notification.hasErrors()) {

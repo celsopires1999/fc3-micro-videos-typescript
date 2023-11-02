@@ -1,4 +1,3 @@
-import { CastMemberTypes } from "@core/cast-member/domain/cast-member-type.vo";
 import {
   CastMemberSearchParams,
   CastMemberSearchResult,
@@ -7,9 +6,8 @@ import {
 import {
   PaginationOutput,
   PaginationOutputMapper,
-} from "../../../../shared/application/pagination-output";
-import { IUseCase } from "../../../../shared/application/use-case.interface";
-import { SortDirection } from "../../../../shared/domain/repository/search-params";
+} from "@core/shared/application/pagination-output";
+import { IUseCase } from "@core/shared/application/use-case.interface";
 import {
   CastMemberOutput,
   CastMemberOutputMapper,
@@ -37,16 +35,5 @@ export class ListCastMembersUseCase
     return PaginationOutputMapper.toOutput(items, searchResult);
   }
 }
-
-// export type ListCastMembersInput = {
-//   page?: number;
-//   per_page?: number;
-//   sort?: string | null;
-//   sort_dir?: SortDirection | null;
-//   filter?: {
-//     name?: string;
-//     type?: CastMemberTypes;
-//   };
-// };
 
 export type ListCastMembersOutput = PaginationOutput<CastMemberOutput>;

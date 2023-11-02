@@ -7,6 +7,7 @@ import {
 import { SearchResult } from "../../shared/domain/repository/search-result";
 import { CastMemberType, CastMemberTypes } from "./cast-member-type.vo";
 import { CastMember, CastMemberId } from "./cast-member.aggregate";
+import { Either } from "@core/shared/domain/either";
 
 export type CastMemberFilter = {
   name?: string;
@@ -14,7 +15,9 @@ export type CastMemberFilter = {
 };
 
 export class CastMemberSearchParams extends SearchParams<CastMemberFilter> {
-  constructor(props: SearchParamsConstructorProps<CastMemberFilter> = {}) {
+  private constructor(
+    props: SearchParamsConstructorProps<CastMemberFilter> = {},
+  ) {
     super(props);
   }
 
@@ -26,29 +29,23 @@ export class CastMemberSearchParams extends SearchParams<CastMemberFilter> {
       };
     } = {},
   ) {
-    const type = CastMemberSearchParams.setCastMemberType(props.filter?.type);
+    const [type, errorCastMemberType] = Either.of(props.filter?.type)
+      .map((type) => type || null)
+      .chain((type) => (type ? CastMemberType.create(type) : Either.of(null)));
 
-    return new CastMemberSearchParams({
-      ...props,
-      filter: {
-        name: props.filter?.name || null,
-        type: type,
-      },
-    });
-  }
-
-  protected static setCastMemberType(type: CastMemberTypes) {
-    if (type) {
-      const castMemberTypeResult = CastMemberType.create(type);
-      if (castMemberTypeResult.isOk()) {
-        return castMemberTypeResult.unwrap();
-      }
+    if (errorCastMemberType) {
       const error = new SearchValidationError([
-        { type: [castMemberTypeResult.unwrapErr()] },
+        { type: [errorCastMemberType.message] },
       ]);
       throw error;
     }
-    return null;
+    return new CastMemberSearchParams({
+      ...props,
+      filter: {
+        name: props.filter?.name || undefined,
+        type: type,
+      },
+    });
   }
 
   get filter(): CastMemberFilter | null {

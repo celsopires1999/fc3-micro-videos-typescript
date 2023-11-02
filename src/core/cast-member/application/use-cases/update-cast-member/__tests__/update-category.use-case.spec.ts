@@ -35,7 +35,7 @@ describe("UpdateCastMemberUseCase Unit Tests", () => {
   it("should throw an error when aggregate is not valid", async () => {
     const aggregate = CastMember.create({
       name: "John Doe",
-      type: CastMemberType.createADirector(),
+      type: CastMemberType.createADirector()!,
     });
     repository.items = [aggregate];
     await expect(() =>
@@ -50,7 +50,7 @@ describe("UpdateCastMemberUseCase Unit Tests", () => {
     const spyUpdate = jest.spyOn(repository, "update");
     const aggregate = CastMember.create({
       name: "John Doe",
-      type: CastMemberType.createADirector(),
+      type: CastMemberType.createADirector()!,
     });
     repository.items = [aggregate];
 

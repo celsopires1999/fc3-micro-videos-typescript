@@ -1,5 +1,5 @@
+import { Either } from "@core/shared/domain/either";
 import { ValueObject } from "@core/shared/domain/value-object";
-import { Err, Ok, Result } from "@sniptt/monads";
 
 export const CastMemberTypes = {
   DIRECTOR: 1,
@@ -16,16 +16,10 @@ export class CastMemberType extends ValueObject {
     this.validate();
   }
 
-  static create(value: CastMemberTypes): Result<CastMemberType, string> {
-    try {
-      const type = new CastMemberType(value);
-      return Ok(type);
-    } catch (e) {
-      if (e instanceof InvalidCastMemberTypeError) {
-        return Err(e.message);
-      }
-      throw e;
-    }
+  static create(
+    value: CastMemberTypes,
+  ): Either<CastMemberType | null, InvalidCastMemberTypeError | null> {
+    return Either.safe(() => new CastMemberType(value));
   }
 
   private validate() {
@@ -36,11 +30,11 @@ export class CastMemberType extends ValueObject {
   }
 
   static createADirector() {
-    return CastMemberType.create(CastMemberTypes.DIRECTOR).unwrap();
+    return CastMemberType.create(CastMemberTypes.DIRECTOR).ok;
   }
 
   static createAnActor() {
-    return CastMemberType.create(CastMemberTypes.ACTOR).unwrap();
+    return CastMemberType.create(CastMemberTypes.ACTOR).ok;
   }
 }
 

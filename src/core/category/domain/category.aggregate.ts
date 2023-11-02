@@ -52,7 +52,8 @@ export class Category extends AggregateRoot {
     this.validate(["name"]);
   }
 
-  changeDescription(description: string): void {
+  // to be checked
+  changeDescription(description: string | null): void {
     this.description = description;
   }
 

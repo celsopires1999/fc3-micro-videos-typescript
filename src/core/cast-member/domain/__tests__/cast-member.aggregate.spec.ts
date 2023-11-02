@@ -14,7 +14,7 @@ describe("CastMember Unit Tests", () => {
   describe("constructor", () => {
     test("with default values ", () => {
       const type = CastMemberType.createADirector();
-      const castMember = new CastMember({ name: "John Doe", type });
+      const castMember = new CastMember({ name: "John Doe", type: type! });
       expect(castMember.cast_member_id).toBeInstanceOf(CastMemberId);
       expect(castMember.name).toBe("John Doe");
       expect(castMember.type).toStrictEqual(type);
@@ -30,7 +30,7 @@ describe("CastMember Unit Tests", () => {
       const castMember = new CastMember({
         cast_member_id: castMemberId,
         name: "John Doe",
-        type,
+        type: type!,
         created_at,
       });
       expect(castMember.cast_member_id).toEqual(castMemberId);
@@ -43,7 +43,7 @@ describe("CastMember Unit Tests", () => {
       const type = CastMemberType.createAnActor();
       const castMember = new CastMember({
         name: "John Doe",
-        type,
+        type: type!,
       });
       expect(castMember.cast_member_id).toBeInstanceOf(CastMemberId);
       expect(castMember.name).toBe("John Doe");
@@ -58,10 +58,22 @@ describe("CastMember Unit Tests", () => {
     };
     const type = CastMemberType.createAnActor();
     const arrange: CastMemberData[] = [
-      { props: { name: "John Doe", type } },
-      { props: { name: "John Doe", type, cast_member_id: null } },
-      { props: { name: "John Doe", type, cast_member_id: undefined } },
-      { props: { name: "John Doe", type, cast_member_id: new CastMemberId() } },
+      { props: { name: "John Doe", type: type! } },
+      {
+        props: {
+          name: "John Doe",
+          type: type!,
+          cast_member_id: null as unknown as CastMemberId,
+        },
+      },
+      { props: { name: "John Doe", type: type!, cast_member_id: undefined } },
+      {
+        props: {
+          name: "John Doe",
+          type: type!,
+          cast_member_id: new CastMemberId(),
+        },
+      },
     ];
     test.each(arrange)("%#) when props are %j", (item) => {
       const castMember = new CastMember(item.props);
@@ -73,7 +85,7 @@ describe("CastMember Unit Tests", () => {
   describe("getters and setters", () => {
     test("getter and setter of name prop", () => {
       const type = CastMemberType.createAnActor();
-      const castMember = new CastMember({ name: "John Doe", type });
+      const castMember = new CastMember({ name: "John Doe", type: type! });
       expect(castMember.name).toBe("John Doe");
 
       castMember["name"] = "Mary Doe";
@@ -82,11 +94,11 @@ describe("CastMember Unit Tests", () => {
 
     test("getter and setter of type prop", () => {
       const type = CastMemberType.createAnActor();
-      const castMember = new CastMember({ name: "John Doe", type });
+      const castMember = new CastMember({ name: "John Doe", type: type! });
       expect(castMember.type).toStrictEqual(type);
-      expect(castMember.type.equals(type)).toBeTruthy();
+      expect(castMember.type.equals(type!)).toBeTruthy();
 
-      castMember["type"] = type;
+      castMember["type"] = type!;
       expect(castMember.type).toStrictEqual(type);
     });
 
@@ -95,7 +107,7 @@ describe("CastMember Unit Tests", () => {
       const created_at = new Date();
       let castMember = new CastMember({
         name: "John Doe",
-        type,
+        type: type!,
         created_at,
       });
       expect(castMember.created_at).toBe(created_at);
@@ -108,7 +120,7 @@ describe("CastMember Unit Tests", () => {
       const type = CastMemberType.createADirector();
       const castMember = CastMember.create({
         name: "John Doe",
-        type,
+        type: type!,
       });
       expect(castMember.cast_member_id).toBeInstanceOf(CastMemberId);
       expect(castMember.name).toBe("John Doe");
@@ -122,7 +134,7 @@ describe("CastMember Unit Tests", () => {
   describe("methods", () => {
     test("changeName", () => {
       const actor = CastMemberType.createAnActor();
-      const castMember = CastMember.create({ name: "John Doe", type: actor });
+      const castMember = CastMember.create({ name: "John Doe", type: actor! });
       castMember.changeName("Mary Doe");
       expect(castMember.cast_member_id).toBeInstanceOf(CastMemberId);
       expect(castMember.name).toBe("Mary Doe");
@@ -134,8 +146,8 @@ describe("CastMember Unit Tests", () => {
     test("changeType", () => {
       const actor = CastMemberType.createAnActor();
       const director = CastMemberType.createADirector();
-      const castMember = CastMember.create({ name: "John Doe", type: actor });
-      castMember.changeType(director);
+      const castMember = CastMember.create({ name: "John Doe", type: actor! });
+      castMember.changeType(director!);
       expect(castMember.cast_member_id).toBeInstanceOf(CastMemberId);
       expect(castMember.name).toBe("John Doe");
       expect(castMember.type).toBe(director);
@@ -148,7 +160,7 @@ describe("CastMember Unit Tests", () => {
       const type = CastMemberType.createADirector();
       const castMember = CastMember.create({
         name: "John Doe",
-        type,
+        type: type!,
       });
       expect(castMember.toJSON()).toEqual({
         cast_member_id: castMember.cast_member_id.id,
@@ -163,7 +175,10 @@ describe("CastMember Validator", () => {
   describe("create command", () => {
     test("invalid name", () => {
       const type = CastMemberType.createADirector();
-      const castMember = CastMember.create({ name: "t".repeat(256), type });
+      const castMember = CastMember.create({
+        name: "t".repeat(256),
+        type: type!,
+      });
 
       expect(castMember.notification.hasErrors()).toBe(true);
       expect(castMember.notification).notificationContainsErrorMessages([
@@ -177,7 +192,7 @@ describe("CastMember Validator", () => {
   describe("changeName method", () => {
     it("should throw an error when name is invalid", () => {
       const type = CastMemberType.createADirector();
-      const castMember = CastMember.create({ name: "Movie", type });
+      const castMember = CastMember.create({ name: "Movie", type: type! });
       castMember.changeName("t".repeat(256));
       expect(castMember.notification.hasErrors()).toBeTruthy();
       expect(castMember.notification).notificationContainsErrorMessages([

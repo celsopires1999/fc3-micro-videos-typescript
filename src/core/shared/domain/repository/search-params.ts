@@ -19,11 +19,12 @@ export class SearchParams<Filter = string> extends ValueObject {
 
   constructor(props: SearchParamsConstructorProps<Filter> = {}) {
     super();
-    this.page = props.page;
-    this.per_page = props.per_page;
-    this.sort = props.sort;
-    this.sort_dir = props.sort_dir;
-    this.filter = props.filter;
+    // to be checked
+    this.page = props.page!;
+    this.per_page = props.per_page!;
+    this.sort = props.sort!;
+    this.sort_dir = props.sort_dir!;
+    this.filter = props.filter!;
   }
 
   get page() {

@@ -66,7 +66,7 @@ describe("CastMembersController Integration Tests", () => {
           new CastMemberId(presenter.id),
         );
 
-        expect(entity.toJSON()).toStrictEqual({
+        expect(entity!.toJSON()).toStrictEqual({
           cast_member_id: presenter.id,
           created_at: presenter.created_at,
           ...expected,
@@ -74,7 +74,7 @@ describe("CastMembersController Integration Tests", () => {
 
         expect(presenter).toEqual(
           CastMembersController.serialize(
-            CastMemberOutputMapper.toOutput(entity),
+            CastMemberOutputMapper.toOutput(entity!),
           ),
         );
       },
@@ -100,7 +100,7 @@ describe("CastMembersController Integration Tests", () => {
           new CastMemberId(presenter.id),
         );
 
-        expect(entity.toJSON()).toStrictEqual({
+        expect(entity!.toJSON()).toStrictEqual({
           cast_member_id: presenter.id,
           created_at: presenter.created_at,
           name: expected.name ?? castMember.name,
@@ -108,7 +108,7 @@ describe("CastMembersController Integration Tests", () => {
         });
         expect(presenter).toEqual(
           CastMembersController.serialize(
-            CastMemberOutputMapper.toOutput(entity),
+            CastMemberOutputMapper.toOutput(entity!),
           ),
         );
       },

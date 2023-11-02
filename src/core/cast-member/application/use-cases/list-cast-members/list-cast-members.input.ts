@@ -5,9 +5,9 @@ import { Transform } from "class-transformer";
 import { IsInt, ValidateNested, validateSync } from "class-validator";
 
 export class ListCastMembersFilter {
-  name?: string | null;
+  name?: string;
   @IsInt()
-  type?: CastMemberTypes | null;
+  type?: CastMemberTypes;
 }
 
 export class ListCastMembersInput

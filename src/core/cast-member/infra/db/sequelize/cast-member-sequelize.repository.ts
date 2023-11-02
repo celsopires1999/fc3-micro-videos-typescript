@@ -13,6 +13,7 @@ import {
 import { SortDirection } from "@core/shared/domain/repository/search-params";
 import { CastMemberModelMapper } from "./cast-member-model-mapper";
 import { CastMemberModel } from "./cast-member.model";
+import { InvalidArgumentError } from "@core/shared/domain/errors/invalid-argument.error";
 
 export class CastMemberSequelizeRepository implements ICastMemberRepository {
   sortableFields: string[] = ["name", "created_at"];
@@ -25,27 +26,19 @@ export class CastMemberSequelizeRepository implements ICastMemberRepository {
   constructor(private castMemberModel: typeof CastMemberModel) {}
 
   async insert(entity: CastMember): Promise<void> {
-    const modelProps = CastMemberModelMapper.toModel(entity);
-    await this.castMemberModel.create(modelProps.toJSON());
+    await this.castMemberModel.create(entity.toJSON());
   }
 
   async bulkInsert(entities: CastMember[]): Promise<void> {
-    const modelsProps = entities.map((entity) =>
-      CastMemberModelMapper.toModel(entity).toJSON(),
-    );
-    await this.castMemberModel.bulkCreate(modelsProps);
+    await this.castMemberModel.bulkCreate(entities.map((e) => e.toJSON()));
   }
 
   async update(entity: CastMember): Promise<void> {
     const id = entity.cast_member_id.id;
 
-    const modelProps = CastMemberModelMapper.toModel(entity);
-    const [affectedRows] = await this.castMemberModel.update(
-      modelProps.toJSON(),
-      {
-        where: { cast_member_id: entity.cast_member_id.id },
-      },
-    );
+    const [affectedRows] = await this.castMemberModel.update(entity.toJSON(), {
+      where: { cast_member_id: entity.cast_member_id.id },
+    });
 
     if (affectedRows !== 1) {
       throw new NotFoundError(id, this.getEntity());
@@ -64,17 +57,58 @@ export class CastMemberSequelizeRepository implements ICastMemberRepository {
     }
   }
 
-  async findById(entity_id: CastMemberId): Promise<CastMember | null> {
-    const model = await this.castMemberModel.findByPk(entity_id.id);
-
+  async findById(id: CastMemberId): Promise<CastMember | null> {
+    const model = await this._get(id.id);
     return model ? CastMemberModelMapper.toEntity(model) : null;
+  }
+
+  private async _get(id: string): Promise<CastMemberModel | null> {
+    return this.castMemberModel.findByPk(id);
   }
 
   async findAll(): Promise<CastMember[]> {
     const models = await this.castMemberModel.findAll();
-    return models.map((model) => {
-      return CastMemberModelMapper.toEntity(model);
+    return models.map((m) => CastMemberModelMapper.toEntity(m));
+  }
+
+  async findByIds(ids: CastMemberId[]): Promise<CastMember[]> {
+    const models = await this.castMemberModel.findAll({
+      where: {
+        cast_member_id: {
+          [Op.in]: ids.map((id) => id.id),
+        },
+      },
     });
+    return models.map((m) => CastMemberModelMapper.toEntity(m));
+  }
+
+  async existsById(
+    ids: CastMemberId[],
+  ): Promise<{ exists: CastMemberId[]; not_exists: CastMemberId[] }> {
+    if (!ids.length) {
+      throw new InvalidArgumentError(
+        "ids must be an array with at least one element",
+      );
+    }
+
+    const existsCastMemberModels = await this.castMemberModel.findAll({
+      attributes: ["cast_member_id"],
+      where: {
+        cast_member_id: {
+          [Op.in]: ids.map((id) => id.id),
+        },
+      },
+    });
+    const existsCastMemberIds = existsCastMemberModels.map(
+      (m) => new CastMemberId(m.cast_member_id),
+    );
+    const notExistsCastMemberIds = ids.filter(
+      (id) => !existsCastMemberIds.some((e) => e.equals(id)),
+    );
+    return {
+      exists: existsCastMemberIds,
+      not_exists: notExistsCastMemberIds,
+    };
   }
 
   async search(props: CastMemberSearchParams): Promise<CastMemberSearchResult> {
@@ -87,6 +121,7 @@ export class CastMemberSequelizeRepository implements ICastMemberRepository {
       if (props.filter.name) {
         where["name"] = { [Op.like]: `%${props.filter.name}%` };
       }
+
       if (props.filter.type) {
         where["type"] = props.filter.type.type;
       }
@@ -97,23 +132,22 @@ export class CastMemberSequelizeRepository implements ICastMemberRepository {
         where,
       }),
       ...(props.sort && this.sortableFields.includes(props.sort)
-        ? { order: this.formatSort(props.sort, props.sort_dir) }
+        ? { order: this.formatSort(props.sort, props.sort_dir!) }
         : { order: [["created_at", "DESC"]] }),
       offset,
       limit,
     });
     return new CastMemberSearchResult({
-      items: models.map((model) => {
-        return CastMemberModelMapper.toEntity(model);
-      }),
+      items: models.map((m) => CastMemberModelMapper.toEntity(m)),
       current_page: props.page,
       per_page: props.per_page,
       total: count,
     });
   }
 
+  // to be checked
   private formatSort(sort: string, sort_dir: SortDirection) {
-    const dialect = this.castMemberModel.sequelize.getDialect();
+    const dialect = this.castMemberModel.sequelize!.getDialect() as "mysql";
     if (this.orderBy[dialect] && this.orderBy[dialect][sort]) {
       return this.orderBy[dialect][sort](sort_dir);
     }

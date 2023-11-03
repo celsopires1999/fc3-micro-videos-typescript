@@ -9,7 +9,7 @@ describe("CastMemberOutputMapper Unit Tests", () => {
   it("should convert a cast member aggregate in output", () => {
     const aggregate = CastMember.create({
       name: "John Doe",
-      type: CastMemberType.createAnActor(),
+      type: CastMemberType.createAnActor()!,
     });
     const spyToJSON = jest.spyOn(aggregate, "toJSON");
     const output = CastMemberOutputMapper.toOutput(aggregate);

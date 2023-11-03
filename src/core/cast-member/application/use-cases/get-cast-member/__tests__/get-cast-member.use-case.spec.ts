@@ -35,7 +35,7 @@ describe("GetCastMemberUseCase Unit Tests", () => {
     const items = [
       CastMember.create({
         name: "John Doe",
-        type: CastMemberType.createADirector(),
+        type: CastMemberType.createADirector()!,
       }),
     ];
     repository.items = items;

@@ -33,7 +33,7 @@ describe("DeleteCastMemberUseCase Unit Tests", () => {
     const items = [
       CastMember.create({
         name: "test 1",
-        type: CastMemberType.createADirector(),
+        type: CastMemberType.createADirector()!,
       }),
     ];
     repository.items = items;

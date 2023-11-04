@@ -89,7 +89,7 @@ export class Genre extends AggregateRoot {
 
   toJSON() {
     return {
-      id: this.genre_id.id,
+      genre_id: this.genre_id.id,
       name: this.name,
       categories_id: Array.from(this.categories_id.values()).map(
         (category_id) => category_id.id,

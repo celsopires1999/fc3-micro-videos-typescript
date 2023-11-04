@@ -7,9 +7,11 @@ describe("GenreFakerBuilder Unit Tests", () => {
   describe("genre_id prop", () => {
     const faker = GenreFakeBuilder.aGenre();
 
-    test("should throw error when any with methods has called", () => {
+    test("should throw error when genre_id with methods has been called", () => {
       expect(() => faker.genre_id).toThrowError(
-        new Error("Property genre_id not have a factory, use 'with' methods"),
+        new Error(
+          `Property genre_id does not have a factory, use "with" method instead`,
+        ),
       );
     });
 

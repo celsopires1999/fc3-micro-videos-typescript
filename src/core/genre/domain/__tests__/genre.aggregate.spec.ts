@@ -189,7 +189,7 @@ describe("Genre Unit Test", () => {
     it("should converte to JSON", () => {
       const genre = Genre.fake().aGenre().build();
       expect(genre.toJSON()).toEqual({
-        id: genre.genre_id.id,
+        genre_id: genre.genre_id.id,
         name: genre.name,
         categories_id: [Array.from(genre.categories_id.values())[0].id],
         is_active: genre.is_active,

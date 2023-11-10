@@ -2,6 +2,7 @@
 //import { EntityValidationError } from "../../domain/validators/validation.error";
 //import { FieldsErrors } from "../../domain/validators/validator-fields-interface";
 import { Notification } from "../../domain/validators/notification";
+import { ValueObject } from "@core/shared/domain/value-object";
 
 // type Expected =
 //   | {
@@ -13,7 +14,7 @@ import { Notification } from "../../domain/validators/notification";
 expect.extend({
   notificationContainsErrorMessages(
     expected: Notification,
-    received: Array<string | { [key: string]: string[] }>
+    received: Array<string | { [key: string]: string[] }>,
   ) {
     const every = received.every((error) => {
       if (typeof error === "string") {
@@ -36,8 +37,19 @@ expect.extend({
           pass: false,
           message: () =>
             `The validation errors not contains ${JSON.stringify(
-              received
+              received,
             )}. Current: ${JSON.stringify(expected.toJSON())}`,
+        };
+  },
+  toBeValueObject(expected: ValueObject, received: ValueObject) {
+    return expected.equals(received)
+      ? { pass: true, message: () => "" }
+      : {
+          pass: false,
+          message: () =>
+            `The value objects are not equal Expected: ${JSON.stringify(
+              expected,
+            )} | Received: ${JSON.stringify(received)}`,
         };
   },
   // containsErrorMessages(expected: Expected, received: FieldsErrors) {

@@ -1,7 +1,7 @@
 import { Op, literal } from "sequelize";
 import { NotFoundError } from "../../../../shared/domain/errors/not-found.error";
 import { Uuid } from "../../../../shared/domain/value-objects/uuid.vo";
-import { Category } from "../../../domain/category.aggregate";
+import { Category, CategoryId } from "../../../domain/category.aggregate";
 import {
   CategorySearchParams,
   CategorySearchResult,
@@ -10,6 +10,7 @@ import {
 import { CategoryModel } from "./category.model";
 import { CategoryModelMapper } from "./category-model-mapper";
 import { SortDirection } from "@core/shared/domain/repository/search-params";
+import { InvalidArgumentError } from "@core/shared/domain/errors/invalid-argument.error";
 
 export class CategorySequelizeRepository implements ICategoryRepository {
   sortableFields: string[] = ["name", "created_at"];
@@ -72,6 +73,46 @@ export class CategorySequelizeRepository implements ICategoryRepository {
     return models.map((model) => {
       return CategoryModelMapper.toEntity(model);
     });
+  }
+
+  async findByIds(ids: CategoryId[]): Promise<Category[]> {
+    const models = await this.categoryModel.findAll({
+      where: {
+        category_id: {
+          [Op.in]: ids.map((id) => id.id),
+        },
+      },
+    });
+    return models.map((m) => CategoryModelMapper.toEntity(m));
+  }
+
+  async existsById(
+    ids: CategoryId[],
+  ): Promise<{ exists: CategoryId[]; not_exists: CategoryId[] }> {
+    if (!ids.length) {
+      throw new InvalidArgumentError(
+        "ids must be an array with at least one element",
+      );
+    }
+
+    const existsCategoryModels = await this.categoryModel.findAll({
+      attributes: ["category_id"],
+      where: {
+        category_id: {
+          [Op.in]: ids.map((id) => id.id),
+        },
+      },
+    });
+    const existsGenreIds = existsCategoryModels.map(
+      (m) => new CategoryId(m.category_id),
+    );
+    const notExistsGenreIds = ids.filter(
+      (id) => !existsGenreIds.some((e) => e.equals(id)),
+    );
+    return {
+      exists: existsGenreIds,
+      not_exists: notExistsGenreIds,
+    };
   }
 
   async search(props: CategorySearchParams): Promise<CategorySearchResult> {

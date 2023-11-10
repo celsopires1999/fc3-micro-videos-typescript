@@ -1,3 +1,4 @@
+import { InvalidArgumentError } from "@core/shared/domain/errors/invalid-argument.error";
 import { Entity } from "../../../domain/entity";
 import { NotFoundError } from "../../../domain/errors/not-found.error";
 import {
@@ -45,7 +46,6 @@ export abstract class InMemoryRepository<
     this.items.splice(indexFound, 1);
   }
 
-  //to be checked
   async findById(entity_id: EntityId): Promise<E | null> {
     const item = this.items.find((item) => item.entity_id.equals(entity_id));
     return typeof item === "undefined" ? null : item;
@@ -55,6 +55,36 @@ export abstract class InMemoryRepository<
     return this.items;
   }
   abstract getEntity(): new (...args: any[]) => E;
+
+  async findByIds(ids: EntityId[]): Promise<E[]> {
+    const entities = this.items.filter((item) =>
+      ids.some((id) => item.entity_id.equals(id)),
+    );
+    return entities;
+  }
+
+  async existsById(
+    ids: EntityId[],
+  ): Promise<{ exists: EntityId[]; not_exists: EntityId[] }> {
+    if (!ids.length) {
+      throw new InvalidArgumentError(
+        "ids must be an array with at least one element",
+      );
+    }
+
+    const existEntityIds = this.items
+      .filter((item) => ids.some((id) => item.entity_id.equals(id)))
+      .map((e) => e.entity_id as EntityId);
+
+    const notExistEntityIds = ids.filter(
+      (id) => !existEntityIds.some((e) => e.equals(id)),
+    );
+
+    return {
+      exists: existEntityIds,
+      not_exists: notExistEntityIds,
+    };
+  }
 }
 
 export abstract class InMemorySearchableRepository<

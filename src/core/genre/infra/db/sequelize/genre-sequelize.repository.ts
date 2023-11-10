@@ -6,6 +6,7 @@ import {
 } from "@core/genre/domain/genre.repository";
 import { InvalidArgumentError } from "@core/shared/domain/errors/invalid-argument.error";
 import { SortDirection } from "@core/shared/domain/repository/search-params";
+import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
 import { Op, literal } from "sequelize";
 import { NotFoundError } from "../../../../shared/domain/errors/not-found.error";
 import { GenreModelMapper } from "./genre-model-mapper";
@@ -20,11 +21,15 @@ export class GenreSequelizeRepository implements IGenreRepository {
     },
   };
 
-  constructor(private genreModel: typeof GenreModel) {}
+  constructor(
+    private genreModel: typeof GenreModel,
+    private uow: UnitOfWorkSequelize,
+  ) {}
 
   async insert(aggregate: Genre): Promise<void> {
     await this.genreModel.create(GenreModelMapper.toModelProps(aggregate), {
       include: ["categories_id"],
+      transaction: this.uow.getTransaction(),
     });
   }
 
@@ -32,6 +37,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
     const models = aggregate.map((e) => GenreModelMapper.toModelProps(e));
     await this.genreModel.bulkCreate(models, {
       include: ["categories_id"],
+      transaction: this.uow.getTransaction(),
     });
   }
 
@@ -62,6 +68,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
       this.genreModel.associations.categories_id.target;
     await genreCategoryRelation.destroy({
       where: { genre_id: id.id },
+      transaction: this.uow.getTransaction(),
     });
 
     const affectedRows = await this.genreModel.destroy({
@@ -79,12 +86,16 @@ export class GenreSequelizeRepository implements IGenreRepository {
   }
 
   private async _get(id: string): Promise<GenreModel | null> {
-    return this.genreModel.findByPk(id, { include: ["categories_id"] });
+    return this.genreModel.findByPk(id, {
+      include: ["categories_id"],
+      transaction: this.uow.getTransaction(),
+    });
   }
 
   async findAll(): Promise<Genre[]> {
     const models = await this.genreModel.findAll({
       include: ["categories_id"],
+      transaction: this.uow.getTransaction(),
     });
     return models.map((m) => GenreModelMapper.toEntity(m));
   }
@@ -97,6 +108,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
         },
       },
       include: ["categories_id"],
+      transaction: this.uow.getTransaction(),
     });
     return models.map((m) => GenreModelMapper.toEntity(m));
   }
@@ -117,6 +129,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
           [Op.in]: ids.map((id) => id.id),
         },
       },
+      transaction: this.uow.getTransaction(),
     });
     const existsGenreIds = existsGenreModels.map(
       (m) => new GenreId(m.genre_id),
@@ -163,7 +176,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
           value: props.filter.categories_id.map((c) => c.id),
           get condition() {
             return {
-              ["categories_id.category_id$"]: {
+              ["$categories_id.category_id$"]: {
                 [Op.in]: this.value,
               },
             };
@@ -186,6 +199,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
         (i) => i,
       ),
       where: wheres.length ? { [Op.and]: wheres.map((w) => w.condition) } : {},
+      transaction: this.uow.getTransaction(),
     });
 
     const columnOrder = orderBy.replace("binary", "").trim().split(" ")[0];
@@ -211,6 +225,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
           (acc, w) => ({ ...acc, [w.field]: w.value }),
           {},
         ),
+        transaction: this.uow.getTransaction(),
       },
     );
 
@@ -224,6 +239,7 @@ export class GenreSequelizeRepository implements IGenreRepository {
       },
       include: ["categories_id"],
       order: literal(orderBy),
+      transaction: this.uow.getTransaction(),
     });
 
     return new GenreSearchResult({
@@ -234,9 +250,8 @@ export class GenreSequelizeRepository implements IGenreRepository {
     });
   }
 
-  // to be checked
   private formatSort(sort: string, sort_dir: SortDirection) {
-    const dialect = this.genreModel.sequelize!.getDialect() as "mysql";
+    const dialect = this.genreModel.sequelize!.getDialect();
     if (this.orderBy[dialect] && this.orderBy[dialect][sort]) {
       return this.orderBy[dialect][sort](sort_dir);
     }

@@ -22,16 +22,16 @@ export class UpdateGenreInput {
 
   @IsString()
   @IsOptional()
-  name: string;
+  name?: string;
 
   @IsUUID("4", { each: true })
   @IsArray()
   @IsOptional()
-  categories_id: string[];
+  categories_id?: string[];
 
   @IsBoolean()
   @IsOptional()
-  is_active: boolean;
+  is_active?: boolean;
 
   constructor(props: UpdateGenreInputConstructorProps) {
     if (!props) return;

@@ -1,14 +1,15 @@
-import { CategoriesIdExistsInStorageValidator } from "@core/category/application/validations/categories-ids-exists-in-storage.validator";
-import { Category } from "@core/category/domain/category.aggregate";
-import { CategoryInMemoryRepository } from "@core/category/infra/db/in-memory/category-in-memory.repository";
 import { GenreInMemoryRepository } from "@core/genre/infra/db/in-memory/genre-in-memory.repository";
-import { EntityValidationError } from "@core/shared/domain/validators/validation.error";
+import { UpdateGenreUseCase } from "../update-genre.use-case";
+import { CategoryInMemoryRepository } from "@core/category/infra/db/in-memory/category-in-memory.repository";
+import { CategoriesIdExistsInStorageValidator } from "@core/category/application/validations/categories-ids-exists-in-storage.validator";
 import { UnitOfWorkFakeInMemory } from "@core/shared/infra/db/in-memory/fake-unit-of-work-in-memory";
-import { CreateGenreUseCase } from "../create-genre.use-case";
-import { CreateGenreInput } from "../create-genre.input";
+import { Genre } from "@core/genre/domain/genre.aggregate";
+import { UpdateGenreInput } from "../update-genre.input";
+import { EntityValidationError } from "@core/shared/domain/validators/validation.error";
+import { Category } from "@core/category/domain/category.aggregate";
 
-describe("CreateGenreUseCase Unit Tests", () => {
-  let useCase: CreateGenreUseCase;
+describe("UpdateGenreUseCase Unit Tests", () => {
+  let useCase: UpdateGenreUseCase;
   let genreRepo: GenreInMemoryRepository;
   let categoryRepo: CategoryInMemoryRepository;
   let categoriesIdExistsInStorageValidator: CategoriesIdExistsInStorageValidator;
@@ -20,7 +21,7 @@ describe("CreateGenreUseCase Unit Tests", () => {
     categoryRepo = new CategoryInMemoryRepository();
     categoriesIdExistsInStorageValidator =
       new CategoriesIdExistsInStorageValidator(categoryRepo);
-    useCase = new CreateGenreUseCase(
+    useCase = new UpdateGenreUseCase(
       uow,
       genreRepo,
       categoryRepo,
@@ -31,13 +32,16 @@ describe("CreateGenreUseCase Unit Tests", () => {
   describe("execute method", () => {
     it("should throw an entity validation error when categories ids do not exist", async () => {
       expect.assertions(3);
+      const genre = Genre.fake().aGenre().build();
+      await genreRepo.insert(genre);
       const spyValidateCategoriesId = jest.spyOn(
         categoriesIdExistsInStorageValidator,
         "validate",
       );
       try {
         await useCase.execute(
-          new CreateGenreInput({
+          new UpdateGenreInput({
+            id: genre.genre_id.id,
             name: "test",
             categories_id: [
               "0828ac21-05d3-481a-aaf4-63c5f9a55b04",
@@ -62,42 +66,52 @@ describe("CreateGenreUseCase Unit Tests", () => {
       }
     });
 
-    it("should create a genre", async () => {
+    it("should update a genre", async () => {
       const category1 = Category.fake().aCategory().build();
       const category2 = Category.fake().aCategory().build();
       await categoryRepo.bulkInsert([category1, category2]);
-      const spyInsert = jest.spyOn(genreRepo, "insert");
+      const genre = Genre.fake()
+        .aGenre()
+        .addCategoryId(category1.category_id)
+        .addCategoryId(category2.category_id)
+        .build();
+      await genreRepo.insert(genre);
+      const spyUpdate = jest.spyOn(genreRepo, "update");
       const spyUowDo = jest.spyOn(uow, "do");
       let output = await useCase.execute(
-        new CreateGenreInput({
+        new UpdateGenreInput({
+          id: genre.genre_id.id,
           name: "test",
-          categories_id: [category1.category_id.id, category2.category_id.id],
+          categories_id: [category1.category_id.id],
         }),
       );
       expect(spyUowDo).toHaveBeenCalledTimes(1);
-      expect(spyInsert).toHaveBeenCalledTimes(1);
+      expect(spyUpdate).toHaveBeenCalledTimes(1);
       expect(output).toStrictEqual({
-        id: genreRepo.items[0].genre_id.id,
+        id: genre.genre_id.id,
         name: "test",
-        categories: [category1, category2].map((e) => ({
+        categories: [category1].map((e) => ({
           id: e.category_id.id,
           name: e.name,
           created_at: e.created_at,
         })),
-        categories_id: [category1.category_id.id, category2.category_id.id],
+        categories_id: [category1.category_id.id],
         is_active: true,
         created_at: genreRepo.items[0].created_at,
       });
 
-      output = await useCase.execute({
-        name: "test",
-        categories_id: [category1.category_id.id, category2.category_id.id],
-        is_active: false,
-      });
-      expect(spyInsert).toHaveBeenCalledTimes(2);
+      output = await useCase.execute(
+        new UpdateGenreInput({
+          id: genre.genre_id.id,
+          name: "test",
+          categories_id: [category1.category_id.id, category2.category_id.id],
+          is_active: false,
+        }),
+      );
+      expect(spyUpdate).toHaveBeenCalledTimes(2);
       expect(spyUowDo).toHaveBeenCalledTimes(2);
       expect(output).toStrictEqual({
-        id: genreRepo.items[1].genre_id.id,
+        id: genreRepo.items[0].genre_id.id,
         name: "test",
         categories_id: [category1.category_id.id, category2.category_id.id],
         categories: [category1, category2].map((e) => ({
@@ -106,7 +120,7 @@ describe("CreateGenreUseCase Unit Tests", () => {
           created_at: e.created_at,
         })),
         is_active: false,
-        created_at: genreRepo.items[1].created_at,
+        created_at: genreRepo.items[0].created_at,
       });
     });
   });

@@ -1,4 +1,3 @@
-import { Transaction } from "sequelize";
 // import { AggregateRoot } from "../aggregate-root";
 
 export interface IUnitOfWork {
@@ -8,5 +7,5 @@ export interface IUnitOfWork {
   commit(): Promise<void>;
   rollback(): Promise<void>;
   do<T>(workFn: (uow: IUnitOfWork) => Promise<T>): Promise<T>;
-  getTransaction(): Transaction;
+  getTransaction(): unknown;
 }

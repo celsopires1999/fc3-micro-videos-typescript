@@ -1,19 +1,12 @@
-import { SearchInput } from "@core/shared/application/search-input";
-import { SortDirection } from "@core/shared/domain/repository/search-params";
-import {
-  IsArray,
-  IsOptional,
-  IsUUID,
-  ValidateNested,
-  validateSync,
-} from "class-validator";
+import { IsArray, IsUUID, ValidateNested, validateSync } from "class-validator";
+import { SearchInput } from "../../../../shared/application/search-input";
+import { SortDirection } from "../../../../shared/domain/repository/search-params";
 
 export class ListGenresFilter {
-  name?: string | null;
+  name?: string;
   @IsUUID("4", { each: true })
   @IsArray()
-  @IsOptional()
-  categories_id?: string[] | null;
+  categories_id?: string[];
 }
 
 export class ListGenresInput implements SearchInput<ListGenresFilter> {
@@ -22,11 +15,11 @@ export class ListGenresInput implements SearchInput<ListGenresFilter> {
   sort?: string;
   sort_dir?: SortDirection;
   @ValidateNested()
-  filter: ListGenresFilter;
+  filter?: ListGenresFilter;
 }
 
-export class ValidateCreateGenreInput {
-  static validate(input: ListGenresFilter) {
+export class ValidateListGenresInput {
+  static validate(input: ListGenresInput) {
     return validateSync(input);
   }
 }

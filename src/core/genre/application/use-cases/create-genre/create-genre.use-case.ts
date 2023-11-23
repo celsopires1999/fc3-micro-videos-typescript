@@ -1,3 +1,4 @@
+import { CategoriesIdExistsInStorageValidator } from "@core/category/application/validations/categories-ids-exists-in-storage.validator";
 import { ICategoryRepository } from "@core/category/domain/category.repository";
 import { Genre } from "@core/genre/domain/genre.aggregate";
 import { IGenreRepository } from "@core/genre/domain/genre.repository";
@@ -5,7 +6,6 @@ import { IUseCase } from "@core/shared/application/use-case.interface";
 import { IUnitOfWork } from "@core/shared/domain/repository/unit-of-work.interface";
 import { EntityValidationError } from "@core/shared/domain/validators/validation.error";
 import { GenreOutput, GenreOutputMapper } from "../common/genre-output";
-import { CategoriesIdExistsInStorageValidator } from "../validations/categories-ids-exists-in-storage.validator";
 import { CreateGenreInput } from "./create-genre.input";
 
 export class CreateGenreUseCase
@@ -44,7 +44,7 @@ export class CreateGenreUseCase
     }
 
     await this.uow.do(async () => {
-      this.genreRepo.insert(entity);
+      return this.genreRepo.insert(entity);
     });
 
     const categories = await this.categoryRepo.findByIds(

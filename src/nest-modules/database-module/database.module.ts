@@ -1,12 +1,11 @@
-// import { CategoryModel } from "@core/category/infra/db/sequelize/category.model";
-import { CategoryModel } from "../../core/category/infra/db/sequelize/category.model";
-import { Module } from "@nestjs/common";
+import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
+import { Global, Module, Scope } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { SequelizeModule } from "@nestjs/sequelize";
+import { SequelizeModule, getConnectionToken } from "@nestjs/sequelize";
+import { Sequelize } from "sequelize";
 import { CONFIG_SCHEMA_TYPE } from "../config-module/config.module";
 
-const models = [CategoryModel];
-
+@Global()
 @Module({
   imports: [
     SequelizeModule.forRootAsync({
@@ -16,7 +15,6 @@ const models = [CategoryModel];
           return {
             dialect: "sqlite",
             host: configService.get("DB_HOST"),
-            models,
             autoLoadModels: configService.get("DB_AUTO_LOAD_MODELS"),
             logging: configService.get("DB_LOGGING"),
           };
@@ -30,7 +28,6 @@ const models = [CategoryModel];
             database: configService.get("DB_DATABASE"),
             username: configService.get("DB_USERNAME"),
             password: configService.get("DB_PASSWORD"),
-            models,
             autoLoadModels: configService.get("DB_AUTO_LOAD_MODELS"),
             logging: configService.get("DB_LOGGING"),
           };
@@ -41,5 +38,21 @@ const models = [CategoryModel];
       inject: [ConfigService],
     }),
   ],
+  providers: [
+    {
+      provide: UnitOfWorkSequelize,
+      useFactory: (sequelize: Sequelize) => {
+        return new UnitOfWorkSequelize(sequelize);
+      },
+      inject: [getConnectionToken()],
+      scope: Scope.REQUEST,
+    },
+    {
+      provide: "UnitOfWork",
+      useExisting: UnitOfWorkSequelize,
+      scope: Scope.REQUEST,
+    },
+  ],
+  exports: ["UnitOfWork"],
 })
 export class DatabaseModule {}

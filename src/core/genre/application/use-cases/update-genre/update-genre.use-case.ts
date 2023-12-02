@@ -1,4 +1,4 @@
-import { CategoriesIdExistsInStorageValidator } from "@core/category/application/validations/categories-ids-exists-in-storage.validator";
+import { CategoriesIdExistsInDatabaseValidator } from "@core/category/application/validations/categories-ids-exists-in-storage.validator";
 import { ICategoryRepository } from "@core/category/domain/category.repository";
 import { Genre, GenreId } from "@core/genre/domain/genre.aggregate";
 import { IGenreRepository } from "@core/genre/domain/genre.repository";
@@ -16,7 +16,7 @@ export class UpdateGenreUseCase
     private uow: IUnitOfWork,
     private genreRepo: IGenreRepository,
     private categoryRepo: ICategoryRepository,
-    private categoriesIdExistsInStorage: CategoriesIdExistsInStorageValidator,
+    private categoriesIdExistsInStorage: CategoriesIdExistsInDatabaseValidator,
   ) {}
 
   async execute(input: UpdateGenreInput): Promise<UpdateGenreOutput> {

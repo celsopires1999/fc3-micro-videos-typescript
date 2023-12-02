@@ -1,7 +1,7 @@
 import { GenreInMemoryRepository } from "@core/genre/infra/db/in-memory/genre-in-memory.repository";
 import { UpdateGenreUseCase } from "../update-genre.use-case";
 import { CategoryInMemoryRepository } from "@core/category/infra/db/in-memory/category-in-memory.repository";
-import { CategoriesIdExistsInStorageValidator } from "@core/category/application/validations/categories-ids-exists-in-storage.validator";
+import { CategoriesIdExistsInDatabaseValidator } from "@core/category/application/validations/categories-ids-exists-in-database.validator";
 import { UnitOfWorkFakeInMemory } from "@core/shared/infra/db/in-memory/fake-unit-of-work-in-memory";
 import { Genre } from "@core/genre/domain/genre.aggregate";
 import { UpdateGenreInput } from "../update-genre.input";
@@ -12,7 +12,7 @@ describe("UpdateGenreUseCase Unit Tests", () => {
   let useCase: UpdateGenreUseCase;
   let genreRepo: GenreInMemoryRepository;
   let categoryRepo: CategoryInMemoryRepository;
-  let categoriesIdExistsInStorageValidator: CategoriesIdExistsInStorageValidator;
+  let categoriesIdExistsInStorageValidator: CategoriesIdExistsInDatabaseValidator;
   let uow: UnitOfWorkFakeInMemory;
 
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe("UpdateGenreUseCase Unit Tests", () => {
     genreRepo = new GenreInMemoryRepository();
     categoryRepo = new CategoryInMemoryRepository();
     categoriesIdExistsInStorageValidator =
-      new CategoriesIdExistsInStorageValidator(categoryRepo);
+      new CategoriesIdExistsInDatabaseValidator(categoryRepo);
     useCase = new UpdateGenreUseCase(
       uow,
       genreRepo,

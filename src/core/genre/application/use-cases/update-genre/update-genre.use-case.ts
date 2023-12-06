@@ -1,4 +1,4 @@
-import { CategoriesIdExistsInDatabaseValidator } from "@core/category/application/validations/categories-ids-exists-in-storage.validator";
+import { CategoriesIdExistsInDatabaseValidator } from "@core/category/application/validations/categories-ids-exists-in-database.validator";
 import { ICategoryRepository } from "@core/category/domain/category.repository";
 import { Genre, GenreId } from "@core/genre/domain/genre.aggregate";
 import { IGenreRepository } from "@core/genre/domain/genre.repository";

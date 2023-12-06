@@ -1,7 +1,6 @@
-import { ValueObject } from "../value-object";
-
+import { Uuid } from "../value-objects/uuid.vo";
 export interface IDomainEvent {
-  aggregate_id: ValueObject;
+  aggregate_id: Uuid;
   occurred_on: Date;
   event_version: number;
 }

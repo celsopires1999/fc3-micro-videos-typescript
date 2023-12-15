@@ -156,14 +156,14 @@ describe("Genre Unit Test", () => {
       expect(genre.categories_id.size).toBe(1);
       expect(genre.categories_id.get(category_id.id)).toEqual(category_id);
 
-      genre.syncCategories(categories_id);
+      genre.syncCategoriesId(categories_id);
       expect(genre.categories_id.size).toBe(2);
       categories_id.forEach((categoryId) => {
         expect(genre.categories_id.get(categoryId.id)).toEqual(categoryId);
       });
 
       categories_id.push(category_id);
-      genre.syncCategories(categories_id);
+      genre.syncCategoriesId(categories_id);
       expect(genre.categories_id.size).toBe(3);
       categories_id.forEach((categoryId) => {
         expect(genre.categories_id.get(categoryId.id)).toEqual(categoryId);

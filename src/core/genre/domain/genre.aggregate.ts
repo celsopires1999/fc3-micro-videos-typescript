@@ -61,7 +61,7 @@ export class Genre extends AggregateRoot {
     this.categories_id.delete(category_id.id);
   }
 
-  syncCategories(categories_id: CategoryId[]) {
+  syncCategoriesId(categories_id: CategoryId[]) {
     if (!categories_id.length) {
       throw new Error("Categories id is empty");
     }

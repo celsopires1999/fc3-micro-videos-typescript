@@ -152,7 +152,7 @@ describe("GenreSequelizeRepository Integration Test", () => {
     await categoryRepo.insert(otherCategory);
 
     genre.changeName("Terror");
-    genre.syncCategories([otherCategory.category_id]);
+    genre.syncCategoriesId([otherCategory.category_id]);
     await genreRepo.update(genre);
 
     const foundGenre = await genreRepo.findById(genre.genre_id);

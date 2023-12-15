@@ -10,10 +10,9 @@ export class UnitOfWorkSequelize implements IUnitOfWork {
       this.transaction = await this.sequelize.transaction();
     }
   }
-
   async commit(): Promise<void> {
     this.validateTransaction();
-    this.transaction!.commit();
+    await this.transaction!.commit();
     this.transaction = null;
   }
 
@@ -23,8 +22,8 @@ export class UnitOfWorkSequelize implements IUnitOfWork {
     this.transaction = null;
   }
 
-  getTransaction(): Transaction {
-    return this.transaction!;
+  getTransaction(): Transaction | null {
+    return this.transaction;
   }
 
   async do<T>(workFn: (uow: IUnitOfWork) => Promise<T>): Promise<T> {
@@ -32,6 +31,7 @@ export class UnitOfWorkSequelize implements IUnitOfWork {
     try {
       if (this.transaction) {
         const result = await workFn(this);
+        // this.transaction = null;
         return result;
       }
 

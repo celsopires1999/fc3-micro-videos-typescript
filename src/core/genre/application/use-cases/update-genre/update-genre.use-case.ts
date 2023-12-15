@@ -42,7 +42,7 @@ export class UpdateGenreUseCase
         await this.categoriesIdExistsInStorage.validate(input.categories_id)
       ).asArray();
 
-      categoriesId && genre.syncCategories(categoriesId);
+      categoriesId && genre.syncCategoriesId(categoriesId);
 
       categoriesIdErrors &&
         notification.setError(

@@ -8,12 +8,13 @@ import { VideoMedia } from "@core/video/domain/video-media.vo";
 import { Video, VideoId } from "@core/video/domain/video.aggregate";
 import { IVideoRepository } from "@core/video/domain/video.repository";
 import { UploadAudioVideoMediaInput } from "./upload-audio-video-media.input";
+import { ApplicationService } from "@core/shared/application/application.service";
 
 export class UploadAudioVideoMediasUseCase
   implements IUseCase<UploadAudioVideoMediaInput, UploadAudioVideoMediaOutput>
 {
   constructor(
-    private uow: IUnitOfWork,
+    private appService: ApplicationService,
     private videoRepo: IVideoRepository,
     private storage: IStorage,
   ) {}
@@ -59,7 +60,7 @@ export class UploadAudioVideoMediasUseCase
       mime_type: input.file.mime_type,
     });
 
-    await this.uow.do(async () => {
+    await this.appService.run(async () => {
       return this.videoRepo.update(video);
     });
   }

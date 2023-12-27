@@ -28,7 +28,8 @@
 				"humao.rest-client",
 				"firsttris.vscode-jest-runner",
 				"esbenp.prettier-vscode",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"amazonwebservices.aws-toolkit-vscode"
 			]
 		}
 	}

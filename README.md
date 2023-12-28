@@ -63,3 +63,11 @@ npm run tsc:check
 ```bash
 docker compose down
 ```
+
+- Executar migrações para criar tabelas no banco de dados
+- O build tem que estar criado na pasta ./dist
+
+```bash
+npm run migrate:js up
+npm run migrate:js down -- --to 0
+```

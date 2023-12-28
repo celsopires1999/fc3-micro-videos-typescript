@@ -35,7 +35,7 @@ export const REPOSITORIES = {
 
 export const VALIDATIONS = {
   GENRES_IDS_EXISTS_IN_DATABASE_VALIDATOR: {
-    provide: CategoriesIdExistsInDatabaseValidator,
+    provide: GenresIdExistsInDatabaseValidator,
     useFactory: (genreRepo: IGenreRepository) => {
       return new GenresIdExistsInDatabaseValidator(genreRepo);
     },

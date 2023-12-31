@@ -154,3 +154,5 @@ Content-Type: video/mp4
 ------WebKitFormBoundary1234--
 
 ###
+
+GET http://localhost:3000/fake-event

@@ -1,14 +1,13 @@
+import { ApplicationService } from "@core/shared/application/application.service";
 import { IStorage } from "@core/shared/application/storage.interface";
 import { IUseCase } from "@core/shared/application/use-case.interface";
 import { NotFoundError } from "@core/shared/domain/errors/not-found.error";
-import { IUnitOfWork } from "@core/shared/domain/repository/unit-of-work.interface";
 import { EntityValidationError } from "@core/shared/domain/validators/validation.error";
 import { Trailer } from "@core/video/domain/trailer.vo";
 import { VideoMedia } from "@core/video/domain/video-media.vo";
 import { Video, VideoId } from "@core/video/domain/video.aggregate";
 import { IVideoRepository } from "@core/video/domain/video.repository";
 import { UploadAudioVideoMediaInput } from "./upload-audio-video-media.input";
-import { ApplicationService } from "@core/shared/application/application.service";
 
 export class UploadAudioVideoMediasUseCase
   implements IUseCase<UploadAudioVideoMediaInput, UploadAudioVideoMediaOutput>

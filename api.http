@@ -154,5 +154,17 @@ Content-Type: video/mp4
 ------WebKitFormBoundary1234--
 
 ###
+# @name uploadSpecializedEndpoint
+PATCH http://localhost:3000/videos/{{videoId}}/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary1234
 
+------WebKitFormBoundary1234
+Content-Disposition: form-data; name="video"; filename="video.mp4"
+Content-Type: video/mp4
+
+< ./package.json
+
+------WebKitFormBoundary1234--
+
+###
 GET http://localhost:3000/fake-event

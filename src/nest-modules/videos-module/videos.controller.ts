@@ -53,7 +53,7 @@ export class VideosController {
     FileFieldsInterceptor([
       { name: "banner", maxCount: 1 },
       { name: "thumbnail", maxCount: 1 },
-      { name: "thumbnail_halt", maxCount: 1 },
+      { name: "thumbnail_half", maxCount: 1 },
       { name: "trailer", maxCount: 1 },
       { name: "video", maxCount: 1 },
     ]),
@@ -66,7 +66,7 @@ export class VideosController {
     files: {
       banner?: Express.Multer.File[];
       thumbnail?: Express.Multer.File[];
-      thumbnail_halt?: Express.Multer.File[];
+      thumbnail_half?: Express.Multer.File[];
       trailer?: Express.Multer.File[];
       video?: Express.Multer.File[];
     },

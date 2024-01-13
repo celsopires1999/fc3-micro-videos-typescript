@@ -1,4 +1,4 @@
-import { UpdateVideoInput } from "@core/video/application/update-video/update-video.input";
+import { UpdateVideoInput } from "@core/video/application/use-cases/update-video/update-video.input";
 import { OmitType } from "@nestjs/mapped-types";
 
 export class UpdateVideoInputWithoutId extends OmitType(UpdateVideoInput, [

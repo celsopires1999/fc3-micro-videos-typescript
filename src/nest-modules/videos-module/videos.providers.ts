@@ -8,11 +8,11 @@ import { ApplicationService } from "@core/shared/application/application.service
 import { IStorage } from "@core/shared/application/storage.interface";
 import { IUnitOfWork } from "@core/shared/domain/repository/unit-of-work.interface";
 import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
-import { CreateVideoUseCase } from "@core/video/application/create-video/create-video.use-case";
-import { GetVideoUseCase } from "@core/video/application/get-video/get-video.use-case";
-import { ProcessAudioVideoMediasUseCase } from "@core/video/application/process-audio-video-medias/process-audio-video-medias.use-case";
-import { UpdateVideoUseCase } from "@core/video/application/update-video/update-video.use-case";
-import { UploadAudioVideoMediasUseCase } from "@core/video/application/upload-audio-video-medias/upload-audio-video-medias.use-case";
+import { CreateVideoUseCase } from "@core/video/application/use-cases/create-video/create-video.use-case";
+import { GetVideoUseCase } from "@core/video/application/use-cases/get-video/get-video.use-case";
+import { ProcessAudioVideoMediasUseCase } from "@core/video/application/use-cases/process-audio-video-medias/process-audio-video-medias.use-case";
+import { UpdateVideoUseCase } from "@core/video/application/use-cases/update-video/update-video.use-case";
+import { UploadAudioVideoMediasUseCase } from "@core/video/application/use-cases/upload-audio-video-medias/upload-audio-video-medias.use-case";
 import { IVideoRepository } from "@core/video/domain/video.repository";
 import { VideoInMemoryRepository } from "@core/video/infra/db/in-memory/video-in-memory.repository";
 import { VideoSequelizeRepository } from "@core/video/infra/db/sequelize/video-sequelize.repository";
@@ -21,6 +21,7 @@ import { getModelToken } from "@nestjs/sequelize";
 import { CAST_MEMBERS_PROVIDERS } from "../cast-members-module/cast-members.providers";
 import { CATEGORY_PROVIDERS } from "../categories-module/categories.providers";
 import { GENRES_PROVIDERS } from "../genres-module/genres.providers";
+import { PublishVideoMediaReplacedInQueueHandler } from "@core/video/application/handlers/publish-video-media-replaced-in-queue.handler";
 
 export const REPOSITORIES = {
   VIDEO_REPOSITORY: {
@@ -143,7 +144,15 @@ export const USE_CASES = {
   },
 };
 
+export const HANDLERS = {
+  PUBLISH_VIDEO_MEDIA_REPLACED_IN_QUEUE_HANDLER: {
+    provide: PublishVideoMediaReplacedInQueueHandler,
+    useClass: PublishVideoMediaReplacedInQueueHandler,
+  },
+};
+
 export const VIDEOS_PROVIDERS = {
   REPOSITORIES,
   USE_CASES,
+  HANDLERS,
 };

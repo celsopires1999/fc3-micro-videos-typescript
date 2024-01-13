@@ -1,9 +1,9 @@
-import { CreateVideoUseCase } from "@core/video/application/create-video/create-video.use-case";
-import { GetVideoUseCase } from "@core/video/application/get-video/get-video.use-case";
-import { UpdateVideoInput } from "@core/video/application/update-video/update-video.input";
-import { UpdateVideoUseCase } from "@core/video/application/update-video/update-video.use-case";
-import { UploadAudioVideoMediaInput } from "@core/video/application/upload-audio-video-medias/upload-audio-video-media.input";
-import { UploadAudioVideoMediasUseCase } from "@core/video/application/upload-audio-video-medias/upload-audio-video-medias.use-case";
+import { CreateVideoUseCase } from "@core/video/application/use-cases/create-video/create-video.use-case";
+import { GetVideoUseCase } from "@core/video/application/use-cases/get-video/get-video.use-case";
+import { UpdateVideoInput } from "@core/video/application/use-cases/update-video/update-video.input";
+import { UpdateVideoUseCase } from "@core/video/application/use-cases/update-video/update-video.use-case";
+import { UploadAudioVideoMediaInput } from "@core/video/application/use-cases/upload-audio-video-medias/upload-audio-video-media.input";
+import { UploadAudioVideoMediasUseCase } from "@core/video/application/use-cases/upload-audio-video-medias/upload-audio-video-medias.use-case";
 import {
   BadRequestException,
   Body,

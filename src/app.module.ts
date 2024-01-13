@@ -8,6 +8,9 @@ import { GenresModule } from "./nest-modules/genres-module/genres.module";
 import { SharedModule } from "./nest-modules/shared-module/shared.module";
 import { UseCaseModule } from "./nest-modules/use-case-module/use-case.module";
 import { VideosModule } from "./nest-modules/videos-module/videos.module";
+import { RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
+import { RabbitMQFakeConsumer } from "./nest-modules/rabbitmq-fake.consumer";
+import { RabbitmqFakeController } from './rabbitmq-fake/rabbitmq-fake.controller';
 
 @Module({
   imports: [
@@ -20,6 +23,11 @@ import { VideosModule } from "./nest-modules/videos-module/videos.module";
     CastMembersModule,
     GenresModule,
     VideosModule,
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      uri: "amqp://admin:admin@rabbitmq:5672",
+    }),
   ],
+  providers: [RabbitMQFakeConsumer],
+  controllers: [RabbitmqFakeController],
 })
 export class AppModule {}

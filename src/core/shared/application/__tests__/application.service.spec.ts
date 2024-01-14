@@ -40,10 +40,15 @@ describe("ApplicationService Unit Tests", () => {
       const aggregateRoot = new StubAggregateRoot();
       uow.addAggregateRoot(aggregateRoot);
       const publishSpy = jest.spyOn(domainEventMediator, "publish");
+      const publishIntegrationEventsSpy = jest.spyOn(
+        domainEventMediator,
+        "publishIntegrationEvents",
+      );
       const commitSpy = jest.spyOn(uow, "commit");
       await applicationService.finish();
       expect(publishSpy).toBeCalledWith(aggregateRoot);
       expect(commitSpy).toBeCalled();
+      expect(publishIntegrationEventsSpy).toBeCalledWith(aggregateRoot);
     });
   });
 
@@ -61,7 +66,7 @@ describe("ApplicationService Unit Tests", () => {
       const spyStart = jest.spyOn(applicationService, "start");
       const spyFinish = jest.spyOn(applicationService, "finish");
 
-      const result = await applicationService.run<string>(callback);
+      const result = await applicationService.run(callback);
 
       expect(spyStart).toBeCalled();
       expect(callback).toBeCalled();
@@ -72,9 +77,9 @@ describe("ApplicationService Unit Tests", () => {
     it("should rollback and throw the error if the callback throws an error", async () => {
       const callback = jest.fn().mockRejectedValue(new Error("test-error"));
       const spyFail = jest.spyOn(applicationService, "fail");
-      await expect(
-        applicationService.run<string>(callback),
-      ).rejects.toThrowError("test-error");
+      await expect(applicationService.run(callback)).rejects.toThrowError(
+        "test-error",
+      );
       expect(spyFail).toBeCalled();
     });
   });

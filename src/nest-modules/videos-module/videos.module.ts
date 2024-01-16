@@ -14,6 +14,7 @@ import { GenresModule } from "../genres-module/genres.module";
 import { RabbitmqModule } from "../rabbitmq-module/rabbitmq.module";
 import { VideosController } from "./videos.controller";
 import { VIDEOS_PROVIDERS } from "./videos.providers";
+import { VideosConsumers } from "./videos.consumers";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { VIDEOS_PROVIDERS } from "./videos.providers";
     ...Object.values(VIDEOS_PROVIDERS.REPOSITORIES),
     ...Object.values(VIDEOS_PROVIDERS.USE_CASES),
     ...Object.values(VIDEOS_PROVIDERS.HANDLERS),
+    VideosConsumers,
   ],
   //exports: [VIDEOS_PROVIDERS.REPOSITORIES.VIDEO_REPOSITORY.provide],
 })

@@ -1,14 +1,15 @@
-import { IDomainEvent } from "@core/shared/domain/events/domain-event.interface";
+import { IIntegrationEvent } from "@core/shared/domain/events/domain-event.interface";
 import { Uuid } from "@core/shared/domain/value-objects/uuid.vo";
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { ConsumeMessage } from "amqplib";
 import { Config } from "../../config";
 import { RabbitMQMessageBroker } from "../rabbitmq-message-broker";
 
-class TestEvent implements IDomainEvent {
+class TestEvent implements IIntegrationEvent {
   occurred_on: Date = new Date();
   event_version: number = 1;
-  constructor(readonly aggregate_id: Uuid) {}
+  event_name: string = TestEvent.name;
+  constructor(readonly payload: any) {}
 }
 
 describe("RabbitMQMessageBroker Integration tests", () => {
@@ -50,18 +51,17 @@ describe("RabbitMQMessageBroker Integration tests", () => {
       const event = new TestEvent(new Uuid());
 
       await service.publishEvent(event);
-
       const msg: ConsumeMessage = await new Promise((resolve) => {
         connection.channel.consume("test-queue", (msg) => {
           resolve(msg!);
         });
       });
-
       const msgObj = JSON.parse(msg.content.toString());
       expect(msgObj).toEqual({
-        aggregate_id: { id: event.aggregate_id.id },
+        event_name: TestEvent.name,
         event_version: 1,
         occurred_on: event.occurred_on.toISOString(),
+        payload: event.payload,
       });
     });
   });

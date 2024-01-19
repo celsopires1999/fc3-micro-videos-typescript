@@ -29,7 +29,8 @@
 				"firsttris.vscode-jest-runner",
 				"esbenp.prettier-vscode",
 				"eamodio.gitlens",
-				"amazonwebservices.aws-toolkit-vscode"
+				"amazonwebservices.aws-toolkit-vscode",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	}

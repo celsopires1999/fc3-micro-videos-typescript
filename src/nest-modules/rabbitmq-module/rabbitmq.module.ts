@@ -2,6 +2,7 @@ import { RabbitMQMessageBroker } from "@core/shared/infra/message-broker/rabbitm
 import { AmqpConnection, RabbitMQModule } from "@golevelup/nestjs-rabbitmq";
 import { DynamicModule } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { RabbitmqConsumeErrorFilter } from "./rabbitmq-consume-error/rabbitmq-consume-error.filter";
 
 // @Module({
 //   imports: [
@@ -36,18 +37,29 @@ export class RabbitmqModule {
                 name: "dlx.exchange",
                 type: "topic",
               },
+              {
+                name: "direct.delayed",
+                type: "x-delayed-message",
+                options: {
+                  arguments: {
+                    "x-delayed-type": "direct",
+                  },
+                },
+              },
             ],
             queues: [
               {
                 name: "dlx.queue",
                 exchange: "dlx.exchange",
                 routingKey: "#", // all routing keys are accepted
+                createQueueIfNotExists: false,
               },
             ],
           }),
           inject: [ConfigService],
         }),
       ],
+      providers: [RabbitmqConsumeErrorFilter],
       global: true,
       exports: [RabbitMQModule],
     };

@@ -171,3 +171,34 @@ GET http://localhost:3000/fake-event
 
 ###
 GET http://localhost:3000/rabbitmq-fake
+
+###
+
+### Estou usando host.docker.internal, porque no momento o dev container com rest client está fazendo requisição de dentro do container, 
+### então por localhost:8080 não funciona, mas se estiver usando o rest client fora do container, pode usar localhost:8080
+POST http://host.docker.internal:8080/realms/codeflix/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+username=admin@user.com
+&password=secret
+&grant_type=password
+&client_id=codeflix-admin-frontend
+
+###
+POST http://localhost:3000/auth
+Content-Type: application/json
+
+{
+    "email": "user@userland.com",
+    "password": "12345678"
+}
+
+###
+GET http://localhost:3000/auth
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAdXNlcmxhbmQuY29tIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNzA1Nzk2MTQ2LCJleHAiOjE3MDU3OTYyMDZ9.bUvl_dSOtibrhZDmZheHaBi5TAOODpx_CckwN2d9poI
+
+###
+GET http://localhost:3000/auth
+Content-Type: application/json
+Authorization: Bearer XXXXXXXXXX

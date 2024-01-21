@@ -11,6 +11,7 @@ import { SharedModule } from "./nest-modules/shared-module/shared.module";
 import { UseCaseModule } from "./nest-modules/use-case-module/use-case.module";
 import { VideosModule } from "./nest-modules/videos-module/videos.module";
 import { RabbitmqFakeController } from "./rabbitmq-fake/rabbitmq-fake.controller";
+import { AuthModule } from "./nest-modules/auth-module/auth.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RabbitmqFakeController } from "./rabbitmq-fake/rabbitmq-fake.controller
     EventModule,
     UseCaseModule,
     RabbitmqModule.forRoot(),
+    AuthModule,
     CategoriesModule,
     CastMembersModule,
     GenresModule,

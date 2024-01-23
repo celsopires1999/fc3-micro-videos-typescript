@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-
+    //Bearer XXXXX
     const token = request.headers.authorization?.split(" ")[1];
 
     if (!token) {
@@ -24,7 +24,8 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = this.jtwService.verify(token, { secret: "123456" });
+      // const payload = this.jtwService.verify(token, { secret: "123456" });
+      const payload = this.jtwService.verify(token);
       request["user"] = payload;
       return true;
     } catch (e) {

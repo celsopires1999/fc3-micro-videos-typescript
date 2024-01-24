@@ -4,6 +4,7 @@
 # @name createCategory
 POST http://localhost:3000/categories
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
     "name": "Category 1",
@@ -16,9 +17,11 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3000/categories
+Authorization: Bearer {{jwtToken}}
 
 ###
 GET http://localhost:3000/categories/8f4b7b9c-3f7a-4b6c-8b0c-1c9c5b8b9b6a
+Authorization: Bearer {{jwtToken}}
 
 
 ### 
@@ -203,6 +206,8 @@ Content-Type: application/json
 ### Scripts create-rsa.js e depois generate-token.js
 GET http://localhost:3000/auth
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiYWRtaW4tY2F0YWxvZyJdfSwiaWF0IjoxNzA2MDQ3ODA3LCJleHAiOjE3MDYxMzQyMDd9.byxgSvwBtWI3KpJ-NnTeECQyhlWycT7IWvG4zbVvvTg01ZONXFj2kZeWUnnUta9ycEzmeIudaBl931hfYpHkxA-dyNXIcekA3GWDb-AK4VH80jB1sYVP6yjtLASQQfC0KermmDqPXcAgThd08jiBmmxP0-nnEMr1eqMj4X09qRzhkslV8O7ms-VtubOthIRWu0rM8D2OGFtZ0Uq8Qg9hDBxswQOF4HdeCLboeO5gUl0uxt809InCSoWX7YUr3Y8eGWNxYUN6lfvwVhF1HwTRjWCmdTDCageqmmF0yBPzduxJf8psrfl8cSoIXt7-M7cyh0EQ7VxBGun7xjucJZ-WZg
+Authorization: Bearer {{jwtToken}}
 
 ###
+
+@jwtToken = eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiYWRtaW4tY2F0YWxvZyJdfSwiaWF0IjoxNzA2MDQ3ODA3LCJleHAiOjE3MDYxMzQyMDd9.byxgSvwBtWI3KpJ-NnTeECQyhlWycT7IWvG4zbVvvTg01ZONXFj2kZeWUnnUta9ycEzmeIudaBl931hfYpHkxA-dyNXIcekA3GWDb-AK4VH80jB1sYVP6yjtLASQQfC0KermmDqPXcAgThd08jiBmmxP0-nnEMr1eqMj4X09qRzhkslV8O7ms-VtubOthIRWu0rM8D2OGFtZ0Uq8Qg9hDBxswQOF4HdeCLboeO5gUl0uxt809InCSoWX7YUr3Y8eGWNxYUN6lfvwVhF1HwTRjWCmdTDCageqmmF0yBPzduxJf8psrfl8cSoIXt7-M7cyh0EQ7VxBGun7xjucJZ-WZg

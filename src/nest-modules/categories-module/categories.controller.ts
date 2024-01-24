@@ -16,7 +16,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from "@nestjs/common";
+import { AuthGuard } from "../auth-module/auth.guard";
 import {
   CategoryCollectionPresenter,
   CategoryPresenter,
@@ -25,6 +27,7 @@ import { CreateCategoryDto } from "./dto/create-category.dto";
 import { SearchCategoriesDto } from "./dto/search-categories.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 
+@UseGuards(AuthGuard)
 @Controller("categories")
 export class CategoriesController {
   @Inject(CreateCategoryUseCase)

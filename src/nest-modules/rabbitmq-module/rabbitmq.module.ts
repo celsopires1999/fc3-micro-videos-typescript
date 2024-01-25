@@ -37,6 +37,9 @@ export class RabbitmqModule {
         RabbitMQModule.forRootAsync(RabbitMQModule, {
           useFactory: (configService: ConfigService) => ({
             uri: configService.get("RABBITMQ_URI") as string,
+            registerHandlers:
+              options.enableConsumers ||
+              configService.get("RABBITMQ_REGISTER_HANDLERS"),
             exchanges: [
               {
                 name: "dlx.exchange",

@@ -29,6 +29,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { ChannelWrapper } from "amqp-connection-manager";
 import { ConsumeMessage } from "amqplib";
 import { Sequelize } from "sequelize-typescript";
+import { AuthModule } from "../../auth-module/auth.module";
 import { CAST_MEMBERS_PROVIDERS } from "../../cast-members-module/cast-members.providers";
 import { CATEGORY_PROVIDERS } from "../../categories-module/categories.providers";
 import { ConfigModule } from "../../config-module/config.module";
@@ -50,6 +51,7 @@ describe("PublishVideoMediaReplacedInQueueHandler Integration Tests", () => {
         ConfigModule.forRoot(),
         SharedModule,
         DatabaseModule,
+        AuthModule,
         EventModule,
         UseCaseModule,
         RabbitmqModule.forRoot(),

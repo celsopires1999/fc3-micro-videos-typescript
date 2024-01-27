@@ -4,6 +4,7 @@ import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
 import { DynamicModule } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { Test, TestingModule } from "@nestjs/testing";
+import { AuthModule } from "../../auth-module/auth.module";
 import { ConfigModule } from "../../config-module/config.module";
 import { DatabaseModule } from "../../database-module/database.module";
 import { EventModule } from "../../event-module/event.module";
@@ -39,6 +40,7 @@ describe("VideosModule Unit Tests", () => {
         EventModule,
         UseCaseModule,
         DatabaseModule,
+        AuthModule,
         RabbitmqModuleFake.forRoot(),
         VideosModule,
       ],

@@ -9,6 +9,7 @@ import { ICategoryRepository } from "@core/category/domain/category.repository";
 import { getConnectionToken } from "@nestjs/sequelize";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Sequelize } from "sequelize-typescript";
+import { AuthModule } from "../../auth-module/auth.module";
 import { ConfigModule } from "../../config-module/config.module";
 import { DatabaseModule } from "../../database-module/database.module";
 import { CategoriesController } from "../categories.controller";
@@ -31,7 +32,12 @@ describe("CategoriesController Integration Tests", () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot(), DatabaseModule, CategoriesModule],
+      imports: [
+        ConfigModule.forRoot(),
+        DatabaseModule,
+        AuthModule,
+        CategoriesModule,
+      ],
     }).compile();
     controller = module.get<CategoriesController>(CategoriesController);
     repository = module.get<ICategoryRepository>(

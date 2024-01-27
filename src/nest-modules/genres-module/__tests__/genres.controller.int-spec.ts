@@ -13,6 +13,7 @@ import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-wor
 import { getConnectionToken } from "@nestjs/sequelize";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Sequelize } from "sequelize-typescript";
+import { AuthModule } from "../../auth-module/auth.module";
 import { CATEGORY_PROVIDERS } from "../../categories-module/categories.providers";
 import { ConfigModule } from "../../config-module/config.module";
 import { DatabaseModule } from "../../database-module/database.module";
@@ -33,7 +34,12 @@ describe("GenresController Integration Tests", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot(), DatabaseModule, GenresModule],
+      imports: [
+        ConfigModule.forRoot(),
+        DatabaseModule,
+        AuthModule,
+        GenresModule,
+      ],
     })
       .overrideProvider("UnitOfWork")
       .useFactory({

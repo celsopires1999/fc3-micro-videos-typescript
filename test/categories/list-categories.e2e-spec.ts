@@ -11,12 +11,12 @@ describe("CategoriesController (e2e)", () => {
   describe("/categories (GET)", () => {
     describe("should return categories sorted by created_at when request query is empty", () => {
       let categoryRepo: ICategoryRepository;
-      const nestApp = startApp();
+      const appHelper = startApp();
       const { entitiesMap, arrange } =
         ListCategoriesFixture.arrangeIncrementedWithCreatedAt();
 
       beforeEach(async () => {
-        categoryRepo = nestApp.app.get<ICategoryRepository>(
+        categoryRepo = appHelper.app.get<ICategoryRepository>(
           CategoryProviders.REPOSITORIES.CATEGORY_REPOSITORY.provide,
         );
         await categoryRepo.bulkInsert(Object.values(entitiesMap));
@@ -26,8 +26,9 @@ describe("CategoriesController (e2e)", () => {
         "when query params is $send_data",
         async ({ send_data, expected }) => {
           const queryParams = new URLSearchParams(send_data as any).toString();
-          return request(nestApp.app.getHttpServer())
+          return request(appHelper.app.getHttpServer())
             .get(`/categories/?${queryParams}`)
+            .authenticate(appHelper.app)
             .expect(200)
             .expect({
               data: expected.entities.map((e) =>
@@ -61,6 +62,7 @@ describe("CategoriesController (e2e)", () => {
           const queryParams = new URLSearchParams(send_data as any).toString();
           return request(appHelper.app.getHttpServer())
             .get(`/categories/?${queryParams}`)
+            .authenticate(appHelper.app)
             .expect(200)
             .expect({
               data: expected.entities.map((e) =>

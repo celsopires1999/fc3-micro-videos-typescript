@@ -35,6 +35,7 @@ describe("CategoriesController (e2e)", () => {
       test.each(arrange)("when id is $id", async ({ id, expected }) => {
         return request(appHelper.app.getHttpServer())
           .get(`/categories/${id}`)
+          .authenticate(appHelper.app)
           .expect(expected.statusCode)
           .expect(expected);
       });
@@ -49,6 +50,7 @@ describe("CategoriesController (e2e)", () => {
 
       const res = await request(appHelper.app.getHttpServer())
         .get(`/categories/${category.category_id.id}`)
+        .authenticate(appHelper.app)
         .expect(200);
       const keyInResponse = GetCategoryFixture.keysInResponse;
       expect(Object.keys(res.body)).toStrictEqual(["data"]);

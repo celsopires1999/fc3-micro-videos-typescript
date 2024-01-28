@@ -6,7 +6,19 @@ import { MigrationsModule } from "../src/nest-modules/database-module/migrations
 
 describe("Migrate (e2e)", () => {
   let umzug: Umzug;
-  const totalMigrations = 2;
+  const totalMigrations = 10;
+  const expectedMigrations = [
+    "2023.10.28T22.20.59.create-cast-members-table.ts",
+    "2023.10.21T21.53.18.create-categories-table.ts",
+    "2023.12.27T15.36.39.create-genres-table.ts",
+    "2023.12.27T15.36.40.create-category-genre-table.ts",
+    "2023.12.27T15.36.39.create-videos-table.ts",
+    "2023.12.27T15.36.40.create-category-video-table.ts",
+    "2023.12.27T15.36.41.create-genre-video-table.ts",
+    "2023.12.27T15.36.42.create-cast-member-video-table.ts",
+    "2023.12.27T15.36.43.create-audio-video-medias-table.ts",
+    "2023.12.27T15.36.43.create-image-medias-table.ts",
+  ];
   let moduleFixture: TestingModule;
 
   beforeEach(async () => {
@@ -27,11 +39,7 @@ describe("Migrate (e2e)", () => {
     const result = await umzug.up();
     expect(result).toHaveLength(totalMigrations);
 
-    const foundMigrations = [result[0].name, result[1].name];
-    const expectedMigrations = [
-      "2023.10.28T22.20.59.create-cast-members-table.ts",
-      "2023.10.21T21.53.18.create-categories-table.ts",
-    ];
+    const foundMigrations = result.map((migration) => migration.name);
     expect(foundMigrations).toEqual(expectedMigrations);
   });
 
@@ -40,11 +48,7 @@ describe("Migrate (e2e)", () => {
     const result = await umzug.down({ to: 0 as any });
     expect(result).toHaveLength(totalMigrations);
 
-    const foundMigrations = [result[0].name, result[1].name];
-    const expectedMigrations = [
-      "2023.10.21T21.53.18.create-categories-table.ts",
-      "2023.10.28T22.20.59.create-cast-members-table.ts",
-    ];
+    const foundMigrations = result.map((migration) => migration.name).reverse();
     expect(foundMigrations).toEqual(expectedMigrations);
   });
 });

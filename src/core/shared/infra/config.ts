@@ -7,18 +7,10 @@ export class Config {
   static db() {
     Config.readEnv();
 
-    if (Config.env.DB_VENDOR === "sqlite") {
-      return {
-        dialect: "sqlite" as any,
-        host: Config.env.DB_HOST,
-        logging: Config.env.DB_LOGGING === "true",
-      };
-    }
-
     return {
       dialect: "sqlite" as any,
-      host: ":memory:",
-      logging: false,
+      host: Config.env.DB_HOST,
+      logging: Config.env.DB_LOGGING === "true",
     };
   }
 
@@ -45,8 +37,13 @@ export class Config {
       return;
     }
 
-    Config.env = readEnv({
+    const { parsed } = readEnv({
       path: join(__dirname, `../../../../envs/.env.${process.env.NODE_ENV}`),
-    }).parsed;
+    });
+
+    Config.env = {
+      ...parsed,
+      ...process.env,
+    };
   }
 }

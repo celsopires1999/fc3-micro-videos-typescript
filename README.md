@@ -78,3 +78,7 @@ docker compose down
 npm run migrate:js up
 npm run migrate:js down -- --to 0
 ```
+
+# TODO
+
+- Editar as instruções para rodar o microsserviço.

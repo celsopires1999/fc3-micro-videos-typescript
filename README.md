@@ -20,13 +20,20 @@ docker compose up -d --build
 docker compose exec app bash
 ```
 
+- Gerar os certificados para os testes e copiar para os arquivos .env, .env.test e env.e2e
+
+```bash
+node create-rsa
+node generate-token
+```
+
 - Executar os testes de unidade e integração
 
 ```bash
 npm run test:cov
 ```
 
-- o relatório de cobertura dos testes será gravado na pasta `_coverage` e também exibido no terminal.
+- o relatório de cobertura dos testes será gravado na pasta `__coverage` e também exibido no terminal.
 
 - resultado esperado:
 

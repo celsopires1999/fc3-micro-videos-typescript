@@ -38,3 +38,5 @@ __coverage/
 .history/
 
 docker-compose.override.yaml
+
+.docker/filebeatdata

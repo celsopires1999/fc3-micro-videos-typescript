@@ -17,6 +17,8 @@ services:
     #   - "host.docker.internal:172.17.0.1"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    labels:
+      filebeat_collector: true
 
   db:
     image: mysql:8.0.30-debian

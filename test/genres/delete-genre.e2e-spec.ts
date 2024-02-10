@@ -10,6 +10,24 @@ import { startApp } from "../../src/nest-modules/shared-module/testing/helpers";
 describe("GenresController (e2e)", () => {
   describe("/delete/:id (DELETE)", () => {
     const appHelper = startApp();
+
+    describe("unauthenticated", () => {
+      test("should return 401 when not authenticated", () => {
+        return request(appHelper.app.getHttpServer())
+          .delete("/genres/88ff2587-ce5a-4769-a8c6-1d63d29c5f7a")
+          .send({})
+          .expect(401);
+      });
+
+      test("should return 403 when not authenticated as admin", () => {
+        return request(appHelper.app.getHttpServer())
+          .delete("/genres/88ff2587-ce5a-4769-a8c6-1d63d29c5f7a")
+          .authenticate(appHelper.app, false)
+          .send({})
+          .expect(403);
+      });
+    });
+
     describe("should return a response error when id is invalid or not found", () => {
       const arrange = [
         {
@@ -34,6 +52,7 @@ describe("GenresController (e2e)", () => {
       test.each(arrange)("when id is $id", async ({ id, expected }) => {
         return request(appHelper.app.getHttpServer())
           .delete(`/genres/${id}`)
+          .authenticate(appHelper.app)
           .expect(expected.statusCode)
           .expect(expected);
       });
@@ -56,6 +75,7 @@ describe("GenresController (e2e)", () => {
 
       await request(appHelper.app.getHttpServer())
         .delete(`/genres/${genre.genre_id.id}`)
+        .authenticate(appHelper.app)
         .expect(204);
 
       await expect(genreRepo.findById(genre.genre_id)).resolves.toBeNull();

@@ -1,3 +1,4 @@
+import { VideoOutput } from "@core/video/application/use-cases/common/video-output";
 import { CreateVideoUseCase } from "@core/video/application/use-cases/create-video/create-video.use-case";
 import { GetVideoUseCase } from "@core/video/application/use-cases/get-video/get-video.use-case";
 import { UpdateVideoInput } from "@core/video/application/use-cases/update-video/update-video.input";
@@ -15,13 +16,18 @@ import {
   Patch,
   Post,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { AuthGuard } from "../auth-module/auth.guard";
+import { CheckIsAdminGuard } from "../auth-module/check-is-admin.guard";
 import { CreateVideoDto } from "./dto/create-video.dto";
 import { UpdateVideoDto } from "./dto/update-video.dto";
+import { VideoPresenter } from "./videos.presenter";
 
+@UseGuards(AuthGuard, CheckIsAdminGuard)
 @Controller("videos")
 export class VideosController {
   @Inject(CreateVideoUseCase)
@@ -46,7 +52,8 @@ export class VideosController {
   async findOne(
     @Param("id", new ParseUUIDPipe({ errorHttpStatusCode: 422 })) id: string,
   ) {
-    return await this.getUseCase.execute({ id });
+    const output = await this.getUseCase.execute({ id });
+    return VideosController.serialize(output);
   }
 
   @UseInterceptors(
@@ -181,5 +188,9 @@ export class VideosController {
       //use case upload image media
     }
     return await this.getUseCase.execute({ id });
+  }
+
+  static serialize(output: VideoOutput) {
+    return new VideoPresenter(output);
   }
 }

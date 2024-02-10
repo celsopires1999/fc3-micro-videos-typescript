@@ -1,5 +1,6 @@
 import { RatingValues } from "@core/video/domain/rating.vo";
 import {
+  ArrayNotEmpty,
   IsArray,
   IsBoolean,
   IsInt,
@@ -52,17 +53,17 @@ export class CreateVideoInput {
 
   @IsUUID("4", { each: true })
   @IsArray()
-  @IsNotEmpty()
+  @ArrayNotEmpty()
   categories_id: string[];
 
   @IsUUID("4", { each: true })
   @IsArray()
-  @IsNotEmpty()
+  @ArrayNotEmpty()
   genres_id: string[];
 
   @IsUUID("4", { each: true })
   @IsArray()
-  @IsNotEmpty()
+  @ArrayNotEmpty()
   cast_members_id: string[];
 
   constructor(props?: CreateVideoInputConstructorProps) {

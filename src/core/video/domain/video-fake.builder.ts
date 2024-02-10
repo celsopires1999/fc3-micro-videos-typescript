@@ -19,7 +19,8 @@ export class VideoFakeBuilder<TBuild = any> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private _title: PropOrFactory<string> = (_index) => this.chance.word();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private _description: PropOrFactory<string> = (_index) => this.chance.word();
+  private _description: PropOrFactory<string> = (_index) =>
+    this.chance.paragraph();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private _year_launched: PropOrFactory<number> = (_index) =>
     +this.chance.year();
@@ -94,7 +95,7 @@ export class VideoFakeBuilder<TBuild = any> {
 
   private constructor(countObjs: number = 1) {
     this.countObjs = countObjs;
-    this.chance = Chance();
+    this.chance = Chance.Chance();
   }
 
   withVideoId(valueOrFactory: PropOrFactory<VideoId>) {
@@ -298,7 +299,7 @@ export class VideoFakeBuilder<TBuild = any> {
   }
 
   get is_opened() {
-    return this.getValue("is_opened");
+    return this.getValue("opened");
   }
 
   get banner() {

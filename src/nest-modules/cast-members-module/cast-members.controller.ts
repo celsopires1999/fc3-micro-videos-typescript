@@ -16,15 +16,19 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from "@nestjs/common";
+import { AuthGuard } from "../auth-module/auth.guard";
+import { CheckIsAdminGuard } from "../auth-module/check-is-admin.guard";
 import {
   CastMemberCollectionPresenter,
   CastMemberPresenter,
 } from "./cast-members.presenter";
 import { CreateCastMemberDto } from "./dto/create-cast-member.dto";
-import { UpdateCastMemberDto } from "./dto/update-cast-member.dto";
 import { SearchCastMemberDto } from "./dto/search-cast-members.dto";
+import { UpdateCastMemberDto } from "./dto/update-cast-member.dto";
 
+@UseGuards(AuthGuard, CheckIsAdminGuard)
 @Controller("cast-members")
 export class CastMembersController {
   @Inject(CreateCastMemberUseCase)

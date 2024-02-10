@@ -12,6 +12,7 @@ import {
   CastMemberId,
 } from "../../../core/cast-member/domain/cast-member.aggregate";
 import { ICastMemberRepository } from "../../../core/cast-member/domain/cast-member.repository";
+import { AuthModule } from "../../auth-module/auth.module";
 import { ConfigModule } from "../../config-module/config.module";
 import { DatabaseModule } from "../../database-module/database.module";
 import { CastMembersController } from "../cast-members.controller";
@@ -31,7 +32,12 @@ describe("CastMembersController Integration Tests", () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot(), DatabaseModule, CastMembersModule],
+      imports: [
+        ConfigModule.forRoot(),
+        DatabaseModule,
+        AuthModule,
+        CastMembersModule,
+      ],
     }).compile();
 
     controller = module.get(CastMembersController);

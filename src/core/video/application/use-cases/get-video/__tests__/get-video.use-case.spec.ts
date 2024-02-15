@@ -1,38 +1,28 @@
 import { CastMember } from "@core/cast-member/domain/cast-member.aggregate";
-import { CastMemberSequelizeRepository } from "@core/cast-member/infra/db/sequelize/cast-member-sequelize.repository";
-import { CastMemberModel } from "@core/cast-member/infra/db/sequelize/cast-member.model";
+import { CastMemberInMemoryRepository } from "@core/cast-member/infra/db/in-memory/cast-member-in-memory.repository";
 import { Category } from "@core/category/domain/category.aggregate";
-import { CategorySequelizeRepository } from "@core/category/infra/db/sequelize/category-sequelize.repository";
-import { CategoryModel } from "@core/category/infra/db/sequelize/category.model";
+import { CategoryInMemoryRepository } from "@core/category/infra/db/in-memory/category-in-memory.repository";
 import { Genre } from "@core/genre/domain/genre.aggregate";
-import { GenreSequelizeRepository } from "@core/genre/infra/db/sequelize/genre-sequelize.repository";
-import { GenreModel } from "@core/genre/infra/db/sequelize/genre.model";
+import { GenreInMemoryRepository } from "@core/genre/infra/db/in-memory/genre-in-memory.repository";
 import { NotFoundError } from "@core/shared/domain/errors/not-found.error";
-import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
 import { Video, VideoId } from "@core/video/domain/video.aggregate";
-import { setupSequelizeForVideo } from "@core/video/infra/db/sequelize/testing/helpers";
-import { VideoSequelizeRepository } from "@core/video/infra/db/sequelize/video-sequelize.repository";
-import { VideoModel } from "@core/video/infra/db/sequelize/video.model";
+import { VideoInMemoryRepository } from "@core/video/infra/db/in-memory/video-in-memory.repository";
 import { GetVideoUseCase } from "../get-video.use-case";
 import { expectVideoOutput } from "./get-video-tests-utils";
 
-describe("GetVideoUseCase Integration Tests", () => {
-  let uow: UnitOfWorkSequelize;
+describe("GetVideoUseCase Unit Tests", () => {
   let useCase: GetVideoUseCase;
-  let videoRepo: VideoSequelizeRepository;
-  let genreRepo: GenreSequelizeRepository;
-  let castMemberRepo: CastMemberSequelizeRepository;
-  let categoryRepo: CategorySequelizeRepository;
 
-  const sequelizeHelper = setupSequelizeForVideo();
+  let videoRepo: VideoInMemoryRepository;
+  let genreRepo: GenreInMemoryRepository;
+  let castMemberRepo: CastMemberInMemoryRepository;
+  let categoryRepo: CategoryInMemoryRepository;
 
   beforeEach(() => {
-    uow = new UnitOfWorkSequelize(sequelizeHelper.sequelize);
-
-    videoRepo = new VideoSequelizeRepository(VideoModel, uow);
-    genreRepo = new GenreSequelizeRepository(GenreModel, uow);
-    castMemberRepo = new CastMemberSequelizeRepository(CastMemberModel);
-    categoryRepo = new CategorySequelizeRepository(CategoryModel);
+    videoRepo = new VideoInMemoryRepository();
+    genreRepo = new GenreInMemoryRepository();
+    categoryRepo = new CategoryInMemoryRepository();
+    castMemberRepo = new CastMemberInMemoryRepository();
     useCase = new GetVideoUseCase(
       videoRepo,
       categoryRepo,
@@ -42,13 +32,27 @@ describe("GetVideoUseCase Integration Tests", () => {
   });
 
   it("should throw an error when video is not found", async () => {
+    const spyVideoFindById = jest.spyOn(videoRepo, "findById");
+    const spyCategoryFindByIds = jest.spyOn(categoryRepo, "findByIds");
+    const spyGenreFindByIds = jest.spyOn(categoryRepo, "findByIds");
+    const spyCastMemberFindByIds = jest.spyOn(castMemberRepo, "findByIds");
+
     const videoId = new VideoId();
     await expect(useCase.execute({ id: videoId.id })).rejects.toThrow(
       new NotFoundError(videoId.id, Video),
     );
+    expect(spyVideoFindById).toHaveBeenCalledTimes(1);
+    expect(spyCategoryFindByIds).not.toHaveBeenCalled();
+    expect(spyGenreFindByIds).not.toHaveBeenCalled();
+    expect(spyCastMemberFindByIds).not.toHaveBeenCalled();
   });
 
   it("should get a video", async () => {
+    const spyVideoFindById = jest.spyOn(videoRepo, "findById");
+    const spyCategoryFindByIds = jest.spyOn(categoryRepo, "findByIds");
+    const spyGenreFindByIds = jest.spyOn(categoryRepo, "findByIds");
+    const spyCastMemberFindByIds = jest.spyOn(castMemberRepo, "findByIds");
+
     const categories = Category.fake().theCategories(3).build();
     await categoryRepo.bulkInsert(categories);
 
@@ -79,5 +83,10 @@ describe("GetVideoUseCase Integration Tests", () => {
     const output = await useCase.execute({ id: video.video_id.id });
 
     expect(output).toEqual(expected);
+
+    expect(spyVideoFindById).toHaveBeenCalledTimes(1);
+    expect(spyCategoryFindByIds).toHaveBeenCalledTimes(1);
+    expect(spyGenreFindByIds).toHaveBeenCalledTimes(1);
+    expect(spyCastMemberFindByIds).toHaveBeenCalledTimes(1);
   });
 });

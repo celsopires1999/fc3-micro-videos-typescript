@@ -10,8 +10,10 @@ import { Genre } from "@core/genre/domain/genre.aggregate";
 import { IGenreRepository } from "@core/genre/domain/genre.repository";
 import { GenreSequelizeRepository } from "@core/genre/infra/db/sequelize/genre-sequelize.repository";
 import { GenreModel } from "@core/genre/infra/db/sequelize/genre.model";
+import { ApplicationService } from "@core/shared/application/application.service";
 import { IStorage } from "@core/shared/application/storage.interface";
 import { NotFoundError } from "@core/shared/domain/errors/not-found.error";
+import { DomainEventMediator } from "@core/shared/domain/events/domain-event-mediator";
 import { EntityValidationError } from "@core/shared/domain/validators/validation.error";
 import { Config } from "@core/shared/infra/config";
 import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
@@ -22,33 +24,39 @@ import { setupSequelizeForVideo } from "@core/video/infra/db/sequelize/testing/h
 import { VideoSequelizeRepository } from "@core/video/infra/db/sequelize/video-sequelize.repository";
 import { VideoModel } from "@core/video/infra/db/sequelize/video.model";
 import { Storage as GoogleCloudStorageSdk } from "@google-cloud/storage";
-import { UploadImageMediasUseCase } from "../upload-image-medias.use-case";
+import EventEmitter2 from "eventemitter2";
+import { UploadAudioVideoMediasUseCase } from "../upload-audio-video-medias.use-case";
 // import { InMemoryStorage } from "@core/shared/infra/storage/in-memory.storage";
 
-describe("UploadImageMediasUseCase Integration Tests", () => {
-  let uploadImageMediasUseCase: UploadImageMediasUseCase;
+describe("UploadAudioVideoMediasUseCase Integration Tests", () => {
+  let uploadAudioVideoMediasUseCase: UploadAudioVideoMediasUseCase;
   let videoRepo: IVideoRepository;
   let categoryRepo: ICategoryRepository;
   let genreRepo: IGenreRepository;
   let castMemberRepo: ICastMemberRepository;
   let uow: UnitOfWorkSequelize;
+  let domainEventMediator: DomainEventMediator;
+  let appService: ApplicationService;
   let storageService: IStorage;
   const sequelizeHelper = setupSequelizeForVideo();
 
   beforeEach(() => {
     uow = new UnitOfWorkSequelize(sequelizeHelper.sequelize);
+    const eventEmitter = new EventEmitter2();
+    domainEventMediator = new DomainEventMediator(eventEmitter);
+    appService = new ApplicationService(uow, domainEventMediator);
     categoryRepo = new CategorySequelizeRepository(CategoryModel);
     genreRepo = new GenreSequelizeRepository(GenreModel, uow);
     castMemberRepo = new CastMemberSequelizeRepository(CastMemberModel);
     videoRepo = new VideoSequelizeRepository(VideoModel, uow);
-    //storageService = new InMemoryStorage();
+    // storageService = new InMemoryStorage();
     const storageSdk = new GoogleCloudStorageSdk({
       credentials: Config.googleCredentials(),
     });
     storageService = new GoogleCloudStorage(storageSdk, Config.bucketName());
 
-    uploadImageMediasUseCase = new UploadImageMediasUseCase(
-      uow,
+    uploadAudioVideoMediasUseCase = new UploadAudioVideoMediasUseCase(
+      appService,
       videoRepo,
       storageService,
     );
@@ -56,13 +64,13 @@ describe("UploadImageMediasUseCase Integration Tests", () => {
 
   it("should throw error when video not found", async () => {
     await expect(
-      uploadImageMediasUseCase.execute({
+      uploadAudioVideoMediasUseCase.execute({
         video_id: "4e9e2e4e-4b4a-4b4a-8b8b-8b8b8b8b8b8b",
-        field: "banner",
+        field: "trailer",
         file: {
-          raw_name: "banner.jpg",
+          raw_name: "trailer.mp4",
           data: Buffer.from(""),
-          mime_type: "image/jpg",
+          mime_type: "video/mp4",
           size: 100,
         },
       }),
@@ -71,7 +79,7 @@ describe("UploadImageMediasUseCase Integration Tests", () => {
     );
   });
 
-  it("should throw error when image is invalid", async () => {
+  it("should throw error when video is invalid", async () => {
     expect.assertions(2);
     const category = Category.fake().aCategory().build();
     await categoryRepo.insert(category);
@@ -92,13 +100,13 @@ describe("UploadImageMediasUseCase Integration Tests", () => {
     await videoRepo.insert(video);
 
     try {
-      await uploadImageMediasUseCase.execute({
+      await uploadAudioVideoMediasUseCase.execute({
         video_id: video.video_id.id,
-        field: "banner",
+        field: "trailer",
         file: {
-          raw_name: "banner.jpg",
+          raw_name: "trailer.jpeg",
           data: Buffer.from(""),
-          mime_type: "image/jpg",
+          mime_type: "video/jpeg",
           size: 100,
         },
       });
@@ -106,15 +114,15 @@ describe("UploadImageMediasUseCase Integration Tests", () => {
       expect(error).toBeInstanceOf(EntityValidationError);
       expect(error.error).toEqual([
         {
-          banner: [
-            "Invalid media file mime type: image/jpg not in image/jpeg, image/png, image/gif",
+          trailer: [
+            "Invalid media file mime type: video/jpeg not in video/mp4",
           ],
         },
       ]);
     }
-  }, 10000);
+  });
 
-  it("should upload banner image", async () => {
+  it("should upload trailer video", async () => {
     const storeSpy = jest.spyOn(storageService, "store");
     const category = Category.fake().aCategory().build();
     await categoryRepo.insert(category);
@@ -134,27 +142,28 @@ describe("UploadImageMediasUseCase Integration Tests", () => {
 
     await videoRepo.insert(video);
 
-    await uploadImageMediasUseCase.execute({
+    await uploadAudioVideoMediasUseCase.execute({
       video_id: video.video_id.id,
-      field: "banner",
+      field: "trailer",
       file: {
-        raw_name: "banner.jpg",
+        raw_name: "trailer.mp4",
         data: Buffer.from("test data"),
-        mime_type: "image/jpeg",
+        mime_type: "video/mp4",
         size: 100,
       },
     });
 
     const videoUpdated = await videoRepo.findById(video.video_id);
-    expect(videoUpdated!.banner).toBeDefined();
-    expect(videoUpdated!.banner!.name.includes(".jpg")).toBeTruthy();
-    expect(videoUpdated!.banner!.location).toBe(
-      `videos/${videoUpdated!.video_id.id}/images`,
+
+    expect(videoUpdated!.trailer).toBeDefined();
+    expect(videoUpdated!.trailer!.name.includes(".mp4")).toBeTruthy();
+    expect(videoUpdated!.trailer!.raw_location).toBe(
+      `videos/${videoUpdated!.video_id.id}/videos`,
     );
     expect(storeSpy).toHaveBeenCalledWith({
       data: Buffer.from("test data"),
-      id: videoUpdated!.banner!.url,
-      mime_type: "image/jpeg",
+      id: videoUpdated!.trailer!.raw_url,
+      mime_type: "video/mp4",
     });
-  }, 10000);
+  });
 });

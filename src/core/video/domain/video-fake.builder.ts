@@ -274,35 +274,35 @@ export class VideoFakeBuilder<TBuild = any> {
     return this.countObjs === 1 ? (videos[0] as any) : videos;
   }
 
-  get video_id() {
+  get video_id(): VideoId {
     return this.getValue("video_id");
   }
 
-  get title() {
+  get title(): string {
     return this.getValue("title");
   }
 
-  get description() {
+  get description(): string {
     return this.getValue("description");
   }
 
-  get year_launched() {
+  get year_launched(): number {
     return this.getValue("year_launched");
   }
 
-  get duration() {
+  get duration(): number {
     return this.getValue("duration");
   }
 
-  get rating() {
+  get rating(): Rating {
     return this.getValue("rating");
   }
 
-  get is_opened() {
+  get is_opened(): boolean {
     return this.getValue("opened");
   }
 
-  get banner() {
+  get banner(): Banner {
     const banner = this.getValue("banner");
     return (
       banner ??
@@ -313,7 +313,7 @@ export class VideoFakeBuilder<TBuild = any> {
     );
   }
 
-  get thumbnail() {
+  get thumbnail(): Thumbnail {
     const thumbnail = this.getValue("thumbnail");
     return (
       thumbnail ??
@@ -324,7 +324,7 @@ export class VideoFakeBuilder<TBuild = any> {
     );
   }
 
-  get thumbnail_half() {
+  get thumbnail_half(): ThumbnailHalf {
     const thumbnailHalf = this.getValue("thumbnail_half");
     return (
       thumbnailHalf ??
@@ -335,7 +335,7 @@ export class VideoFakeBuilder<TBuild = any> {
     );
   }
 
-  get trailer() {
+  get trailer(): Trailer {
     const trailer = this.getValue("trailer");
     return (
       trailer ??
@@ -346,7 +346,7 @@ export class VideoFakeBuilder<TBuild = any> {
     );
   }
 
-  get video() {
+  get video(): VideoMedia {
     const video = this.getValue("video");
     return (
       video ??
@@ -385,7 +385,7 @@ export class VideoFakeBuilder<TBuild = any> {
     return cast_members_id;
   }
 
-  get created_at() {
+  get created_at(): Date {
     return this.getValue("created_at");
   }
 

@@ -750,7 +750,7 @@ export class CreateVideoFixture {
   }
 }
 
-export class UpdateGenreFixture {
+export class UpdateVideoFixture {
   static keysInResponse = _keysInResponse;
 
   static arrangeForSave() {
@@ -895,7 +895,7 @@ export class UpdateGenreFixture {
   }
 }
 
-export class ListGenresFixture {
+export class ListVideosFixture {
   static arrangeIncrementedWithCreatedAt() {
     const category = Category.fake().aCategory().build();
     const _entities = Genre.fake()

@@ -45,8 +45,8 @@ export class ProcessAudioVideoMediasUseCase
           : video.video.fail();
     }
 
-    this.uow.do(async () => {
-      await this.videoRepo.update(video);
+    await this.uow.do(async () => {
+      return this.videoRepo.update(video);
     });
   }
 }

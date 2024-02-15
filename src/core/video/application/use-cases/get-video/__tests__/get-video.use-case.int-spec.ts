@@ -1,20 +1,20 @@
+import { CastMember } from "@core/cast-member/domain/cast-member.aggregate";
 import { CastMemberSequelizeRepository } from "@core/cast-member/infra/db/sequelize/cast-member-sequelize.repository";
+import { CastMemberModel } from "@core/cast-member/infra/db/sequelize/cast-member.model";
+import { Category } from "@core/category/domain/category.aggregate";
 import { CategorySequelizeRepository } from "@core/category/infra/db/sequelize/category-sequelize.repository";
+import { CategoryModel } from "@core/category/infra/db/sequelize/category.model";
+import { Genre } from "@core/genre/domain/genre.aggregate";
 import { GenreSequelizeRepository } from "@core/genre/infra/db/sequelize/genre-sequelize.repository";
+import { GenreModel } from "@core/genre/infra/db/sequelize/genre.model";
+import { NotFoundError } from "@core/shared/domain/errors/not-found.error";
+import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
+import { Video, VideoId } from "@core/video/domain/video.aggregate";
 import { setupSequelizeForVideo } from "@core/video/infra/db/sequelize/testing/helpers";
 import { VideoSequelizeRepository } from "@core/video/infra/db/sequelize/video-sequelize.repository";
-import { GetVideoUseCase } from "../get-video.use-case";
 import { VideoModel } from "@core/video/infra/db/sequelize/video.model";
-import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
-import { GenreModel } from "@core/genre/infra/db/sequelize/genre.model";
-import { CastMemberModel } from "@core/cast-member/infra/db/sequelize/cast-member.model";
-import { CategoryModel } from "@core/category/infra/db/sequelize/category.model";
-import { Category } from "@core/category/domain/category.aggregate";
-import { Genre } from "@core/genre/domain/genre.aggregate";
-import { CastMember } from "@core/cast-member/domain/cast-member.aggregate";
-import { Video, VideoId } from "@core/video/domain/video.aggregate";
-import { VideoOutputMapper } from "../../common/video-output";
-import { NotFoundError } from "@core/shared/domain/errors/not-found.error";
+import { GetVideoUseCase } from "../get-video.use-case";
+import { expectVideoOutput } from "./get-video-tests-utils";
 
 describe("GetVideoUseCase Integration Tests", () => {
   let uow: UnitOfWorkSequelize;
@@ -74,57 +74,7 @@ describe("GetVideoUseCase Integration Tests", () => {
       .build();
     await videoRepo.insert(video);
 
-    const expected = VideoOutputMapper.toOutput({
-      video,
-      allCategoriesOfVideoAndGenre: categories,
-      genres: [genres[0], genres[1]],
-      cast_members: [castMembers[0], castMembers[1]],
-    });
-
-    expected.categories_id = expect.arrayContaining(
-      expected.categories_id.map((id: string) => id),
-    );
-    expected.categories = expect.arrayContaining(
-      expected.categories.map((category: any) => ({
-        id: category.id,
-        name: category.name,
-        created_at: category.created_at,
-      })),
-    );
-
-    expected.genres_id = expect.arrayContaining(
-      expected.genres_id.map((id: string) => id),
-    );
-    expected.genres = expect.arrayContaining(
-      expected.genres.map((genre: any) => ({
-        id: genre.id,
-        name: genre.name,
-        is_active: genre.is_active,
-        created_at: genre.created_at,
-        categories_id: expect.arrayContaining(
-          genre.categories_id.map((id: string) => id),
-        ),
-        categories: expect.arrayContaining(
-          genre.categories.map((category: any) => ({
-            id: category.id,
-            name: category.name,
-            created_at: category.created_at,
-          })),
-        ),
-      })),
-    );
-
-    expected.cast_members_id = expect.arrayContaining(
-      expected.cast_members_id.map((id: string) => id),
-    );
-    expected.cast_members = expect.arrayContaining(
-      expected.cast_members.map((cast_member: any) => ({
-        id: cast_member.id,
-        name: cast_member.name,
-        type: cast_member.type,
-        created_at: cast_member.created_at,
-      })),
-    );
+    const expected = expectVideoOutput(video, categories, genres, castMembers);
 
     const output = await useCase.execute({ id: video.video_id.id });
 

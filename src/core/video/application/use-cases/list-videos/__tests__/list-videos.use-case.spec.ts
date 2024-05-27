@@ -8,7 +8,7 @@ import { Video } from "@core/video/domain/video.aggregate";
 import { VideoSearchResult } from "@core/video/domain/video.repository";
 import { VideoInMemoryRepository } from "@core/video/infra/db/in-memory/video-in-memory.repository";
 import { ListVideosUseCase } from "../list-videos.use-case";
-import { expectVideoOutput } from "./list-videos-tests-utils";
+import { ListVideosUseCaseFixture } from "./list-videos.use-case.fixture";
 
 describe("ListVideosUseCase Unit Tests", () => {
   let useCase: ListVideosUseCase;
@@ -184,49 +184,8 @@ describe("ListVideosUseCase Unit Tests", () => {
   });
 
   it("should search sorted by created_at when input param is empty", async () => {
-    const categories = Category.fake().theCategories(3).build();
-    const genres = [
-      Genre.fake().aGenre().addCategoryId(categories[0].category_id).build(),
-      Genre.fake()
-        .aGenre()
-        .addCategoryId(categories[0].category_id)
-        .addCategoryId(categories[1].category_id)
-        .build(),
-      Genre.fake()
-        .aGenre()
-        .addCategoryId(categories[0].category_id)
-        .addCategoryId(categories[1].category_id)
-        .addCategoryId(categories[2].category_id)
-        .build(),
-    ];
-    const castMembers = CastMember.fake().theCastMembers(3).build();
-    const videos = [
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("a")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 100))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("b")
-        .addCategoryId(categories[1].category_id)
-        .addGenreId(genres[1].genre_id)
-        .addCastMemberId(castMembers[1].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 200))
-        .build(),
-
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("c")
-        .addCategoryId(categories[2].category_id)
-        .addGenreId(genres[2].genre_id)
-        .addCastMemberId(castMembers[2].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 300))
-        .build(),
-    ];
+    const { videos, categories, genres, castMembers, expected } =
+      ListVideosUseCaseFixture.arrangeEmpty();
 
     await Promise.all([
       categoryRepo.bulkInsert(categories),
@@ -235,114 +194,14 @@ describe("ListVideosUseCase Unit Tests", () => {
       videoRepo.bulkInsert(videos),
     ]);
 
-    const expected = {
-      items: [
-        expectVideoOutput(
-          videos[2],
-          [categories[0], categories[1], categories[2]],
-          [genres[2]],
-          [castMembers[2]],
-        ),
-        expectVideoOutput(
-          videos[1],
-          [categories[0], categories[1]],
-          [genres[1]],
-          [castMembers[1]],
-        ),
-        expectVideoOutput(
-          videos[0],
-          [categories[0]],
-          [genres[0]],
-          [castMembers[0]],
-        ),
-      ],
-      total: 3,
-      current_page: 1,
-      per_page: 15,
-      last_page: 1,
-    };
-
     const output = await useCase.execute({});
 
     expect(output).toStrictEqual(expected);
   });
 
   describe("should search applying filter by title, sort by title and paginate", () => {
-    const categories = [Category.fake().aCategory().build()];
-    const genres = [
-      Genre.fake().aGenre().addCategoryId(categories[0].category_id).build(),
-    ];
-    const castMembers = [CastMember.fake().aCastMember().build()];
-    const videos = [
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("test")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 4000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("a")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 3000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TEST")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 2000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TeSt")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 1000))
-        .build(),
-    ];
-    const arrange = [
-      {
-        input: {
-          page: 1,
-          per_page: 2,
-          sort: "title",
-          filter: { title: "TEST" },
-        },
-        output: {
-          items: [videos[2], videos[3]].map((i) =>
-            expectVideoOutput(i, categories, genres, castMembers),
-          ),
-          total: 3,
-          current_page: 1,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-      {
-        input: {
-          page: 2,
-          per_page: 2,
-          sort: "title",
-          filter: { title: "TEST" },
-        },
-        output: {
-          items: [videos[0]].map((i) =>
-            expectVideoOutput(i, categories, genres, castMembers),
-          ),
-          total: 3,
-          current_page: 2,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-    ];
+    const { videos, categories, genres, castMembers, arrange } =
+      ListVideosUseCaseFixture.arrangeTitle();
 
     beforeEach(async () => {
       await Promise.all([
@@ -363,104 +222,8 @@ describe("ListVideosUseCase Unit Tests", () => {
   });
 
   describe("should search applying filter by categories_id, sort by title and paginate", () => {
-    const categories = Category.fake().theCategories(4).build();
-    const genres = [
-      Genre.fake().aGenre().addCategoryId(categories[0].category_id).build(),
-    ];
-    const castMembers = [CastMember.fake().aCastMember().build()];
-    const videos = [
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("test")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 4000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("a")
-        .addCategoryId(categories[0].category_id)
-        .addCategoryId(categories[1].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 3000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TEST")
-        .addCategoryId(categories[0].category_id)
-        .addCategoryId(categories[1].category_id)
-        .addCategoryId(categories[2].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 2000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("e")
-        .addCategoryId(categories[3].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 1000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TeSt")
-        .addCategoryId(categories[1].category_id)
-        .addCategoryId(categories[2].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 1000))
-        .build(),
-    ];
-    const arrange = [
-      {
-        input: {
-          page: 1,
-          per_page: 2,
-          sort: "title",
-          filter: { categories_id: [categories[0].category_id.id] },
-        },
-        output: {
-          items: [
-            expectVideoOutput(
-              videos[2],
-              [categories[0], categories[1], categories[2]],
-              genres,
-              castMembers,
-            ),
-            expectVideoOutput(
-              videos[1],
-              [categories[0], categories[1]],
-              genres,
-              castMembers,
-            ),
-          ],
-          total: 3,
-          current_page: 1,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-      {
-        input: {
-          page: 2,
-          per_page: 2,
-          sort: "title",
-          filter: { categories_id: [categories[0].category_id.id] },
-        },
-        output: {
-          items: [
-            expectVideoOutput(videos[0], [categories[0]], genres, castMembers),
-          ],
-          total: 3,
-          current_page: 2,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-    ];
+    const { videos, categories, genres, castMembers, arrange } =
+      ListVideosUseCaseFixture.arrangeCategories();
 
     beforeEach(async () => {
       await Promise.all([
@@ -481,105 +244,8 @@ describe("ListVideosUseCase Unit Tests", () => {
   });
 
   describe("should search applying filter by genres_id, sort by title and paginate", () => {
-    const categories = [Category.fake().aCategory().build()];
-    const genres = Genre.fake()
-      .theGenres(4)
-      .addCategoryId(categories[0].category_id)
-      .build();
-    const castMembers = [CastMember.fake().aCastMember().build()];
-    const videos = [
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("test")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 4000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("a")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addGenreId(genres[1].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 3000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TEST")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addGenreId(genres[1].genre_id)
-        .addGenreId(genres[2].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 2000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("e")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[3].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 1000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TeSt")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[1].genre_id)
-        .addGenreId(genres[2].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 1000))
-        .build(),
-    ];
-    const arrange = [
-      {
-        input: {
-          page: 1,
-          per_page: 2,
-          sort: "title",
-          filter: { genres_id: [genres[0].genre_id.id] },
-        },
-        output: {
-          items: [
-            expectVideoOutput(
-              videos[2],
-              categories,
-              [genres[0], genres[1], genres[2]],
-              castMembers,
-            ),
-            expectVideoOutput(
-              videos[1],
-              categories,
-              [genres[0], genres[1]],
-              castMembers,
-            ),
-          ],
-          total: 3,
-          current_page: 1,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-      {
-        input: {
-          page: 2,
-          per_page: 2,
-          sort: "title",
-          filter: { genres_id: [genres[0].genre_id.id] },
-        },
-        output: {
-          items: [
-            expectVideoOutput(videos[0], categories, [genres[0]], castMembers),
-          ],
-          total: 3,
-          current_page: 2,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-    ];
+    const { videos, categories, genres, castMembers, arrange } =
+      ListVideosUseCaseFixture.arrangeGenres();
 
     beforeEach(async () => {
       await Promise.all([
@@ -600,101 +266,8 @@ describe("ListVideosUseCase Unit Tests", () => {
   });
 
   describe("should search applying filter by cast_members_id, sort by title and paginate", () => {
-    const categories = [Category.fake().aCategory().build()];
-    const genres = [
-      Genre.fake().aGenre().addCategoryId(categories[0].category_id).build(),
-    ];
-    const castMembers = CastMember.fake().theCastMembers(4).build();
-    const videos = [
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("test")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 4000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("a")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .addCastMemberId(castMembers[1].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 3000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TEST")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .addCastMemberId(castMembers[1].cast_member_id)
-        .addCastMemberId(castMembers[2].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 2000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("e")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[3].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 1000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("TeSt")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[1].cast_member_id)
-        .addCastMemberId(castMembers[2].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 1000))
-        .build(),
-    ];
-    const arrange = [
-      {
-        input: {
-          page: 1,
-          per_page: 2,
-          sort: "title",
-          filter: { cast_members_id: [castMembers[0].cast_member_id.id] },
-        },
-        output: {
-          items: [
-            expectVideoOutput(videos[2], categories, genres, [
-              castMembers[0],
-              castMembers[1],
-              castMembers[2],
-            ]),
-            expectVideoOutput(videos[1], categories, genres, [
-              castMembers[0],
-              castMembers[1],
-            ]),
-          ],
-          total: 3,
-          current_page: 1,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-      {
-        input: {
-          page: 2,
-          per_page: 2,
-          sort: "title",
-          filter: { cast_members_id: [castMembers[0].cast_member_id.id] },
-        },
-        output: {
-          items: [
-            expectVideoOutput(videos[0], categories, genres, [castMembers[0]]),
-          ],
-          total: 3,
-          current_page: 2,
-          per_page: 2,
-          last_page: 2,
-        },
-      },
-    ];
+    const { videos, categories, genres, castMembers, arrange } =
+      ListVideosUseCaseFixture.arrangeCastMember();
 
     beforeEach(async () => {
       await Promise.all([
@@ -715,56 +288,14 @@ describe("ListVideosUseCase Unit Tests", () => {
   });
 
   describe("should search using filter by title, categories_id, genres_id and cast_members_id", () => {
-    const categoryOfGenre = Category.fake().aCategory().build();
-
-    const categories = Category.fake().theCategories(2).build();
-    const genres = Genre.fake()
-      .theGenres(2)
-      .addCategoryId(categoryOfGenre.category_id)
-      .build();
-    const castMembers = CastMember.fake().theCastMembers(2).build();
-    const videos = [
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("test")
-        .addCategoryId(categories[0].category_id)
-        .addGenreId(genres[0].genre_id)
-        .addCastMemberId(castMembers[0].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 4000))
-        .build(),
-      Video.fake()
-        .aVideoWithoutMedias()
-        .withTitle("a")
-        .addCategoryId(categories[1].category_id)
-        .addGenreId(genres[1].genre_id)
-        .addCastMemberId(castMembers[1].cast_member_id)
-        .withCreatedAt(new Date(new Date().getTime() + 3000))
-        .build(),
-    ];
-    const arrange = [
-      {
-        input: {
-          page: 1,
-          per_page: 2,
-          sort: "title",
-          filter: {
-            title: "a",
-            categories_id: [categories[1].category_id.id],
-            genres_id: [genres[1].genre_id.id],
-            cast_members_id: [castMembers[1].cast_member_id.id],
-          },
-        },
-        output: {
-          items: [
-            expectVideoOutput(videos[1], categories, genres, castMembers),
-          ],
-          total: 1,
-          current_page: 1,
-          per_page: 2,
-          last_page: 1,
-        },
-      },
-    ];
+    const {
+      videos,
+      categories,
+      categoryOfGenre,
+      genres,
+      castMembers,
+      arrange,
+    } = ListVideosUseCaseFixture.arrangeComplexFilter();
 
     beforeEach(async () => {
       await Promise.all([

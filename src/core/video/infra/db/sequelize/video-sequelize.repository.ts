@@ -194,11 +194,22 @@ export class VideoSequelizeRepository implements IVideoRepository {
 
     this.uow.addAggregateRoot(entity);
   }
+  /*
+  Na aula "Adicionando agregados no unit of work" 
+  dentro do capítulo "Orquestração de eventos na camada de aplicação"
+  Havia duas possibilidades de implementação:
+  1. Receber o agregado como parâmetro; ou
+  2. Ler o agregado com base no ID.
 
-  //TODO - implementar mudança de VideoID para o agregado video
-  //async delete(video: Video)
+  Para mudar a interface de repositório, optei por implemebtar o 2
+*/
   async delete(id: VideoId): Promise<void> {
-    //consultar o agregado
+    const video = await this.findById(id);
+
+    if (!video) {
+      throw new NotFoundError(id.id, this.getEntity());
+    }
+
     const videoCategoryRelation =
       this.videoModel.associations.categories_id.target;
     const videoGenreRelation = this.videoModel.associations.genres_id.target;
@@ -239,7 +250,7 @@ export class VideoSequelizeRepository implements IVideoRepository {
       throw new NotFoundError(id.id, this.getEntity());
     }
 
-    //this.uow.addAggregateRoot(video);
+    this.uow.addAggregateRoot(video);
   }
 
   private async _get(id: string): Promise<VideoModel | null> {

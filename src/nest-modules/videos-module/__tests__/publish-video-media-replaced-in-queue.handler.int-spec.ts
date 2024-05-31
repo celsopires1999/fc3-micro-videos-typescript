@@ -1,16 +1,3 @@
-// import { CastMember } from '../../../core/cast-member/domain/cast-member.aggregate';
-// import { ICastMemberRepository } from '../../../core/cast-member/domain/cast-member.repository';
-// import { Category } from '../../../core/category/domain/category.aggregate';
-// import { ICategoryRepository } from '../../../core/category/domain/category.repository';
-// import { Genre } from '../../../core/genre/domain/genre.aggregate';
-// import { IGenreRepository } from '../../../core/genre/domain/genre.repository';
-// import { UnitOfWorkSequelize } from '../../../core/shared/infra/db/sequelize/unit-of-work-sequelize';
-// import { EVENTS_MESSAGE_BROKER_CONFIG } from '../../../core/shared/infra/message-broker/events-message-broker-config';
-// import { UploadAudioVideoMediasUseCase } from '../../../core/video/application/use-cases/upload-audio-video-medias/upload-audio-video-medias.use-case';
-// import { VideoAudioMediaUploadedIntegrationEvent } from '../../../core/video/domain/domain-events/video-audio-media-replaced.event';
-// import { Video } from '../../../core/video/domain/video.aggregate';
-// import { IVideoRepository } from '../../../core/video/domain/video.repository';
-
 import { CastMember } from "@core/cast-member/domain/cast-member.aggregate";
 import { ICastMemberRepository } from "@core/cast-member/domain/cast-member.repository";
 import { Category } from "@core/category/domain/category.aggregate";

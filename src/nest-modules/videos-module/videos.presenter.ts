@@ -4,7 +4,9 @@ import {
   VideoGenreOutput,
   VideoOutput,
 } from "@core/video/application/use-cases/common/video-output";
+import { ListVideosOutput } from "@core/video/application/use-cases/list-videos/list-videos.use-case";
 import { Transform, Type } from "class-transformer";
+import { CollectionPresenter } from "../shared-module/collection.presenter";
 
 export class VideoCategoryPresenter {
   id: string;
@@ -110,13 +112,13 @@ export class VideoPresenter {
   }
 }
 
-// export class VideoCollectionPresenter extends CollectionPresenter {
-//   @Type(() => VideoPresenter)
-//   data: VideoPresenter[];
+export class VideoCollectionPresenter extends CollectionPresenter {
+  @Type(() => VideoPresenter)
+  data: VideoPresenter[];
 
-//   constructor(output: ListGenresOutput) {
-//     const { items, ...paginationProps } = output;
-//     super(paginationProps);
-//     this.data = items.map((item) => new GenrePresenter(item));
-//   }
-// }
+  constructor(output: ListVideosOutput) {
+    const { items, ...paginationProps } = output;
+    super(paginationProps);
+    this.data = items.map((item) => new VideoPresenter(item));
+  }
+}

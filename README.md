@@ -2,14 +2,12 @@
 
 Esse microsserviço é parte do projeto prático do curso Full Cycle 3.0
 
-# Situação atual
-
-No momento estão sendo atendidos os requisitos do desafio "Endpoints de Categoria e Cast Member"
-
 # Como usar
 
+- Executar os containers
+
 ```bash
-docker compose up -d --build
+docker compose -f docker-compose.dev.yaml up -d --build
 ```
 
 - Os arquivos de configuração .env, .env.test e .env.e2e são criados automaticamente com base nos arquivos de exemplo.
@@ -17,15 +15,23 @@ docker compose up -d --build
 - Entrar no container da aplicação
 
 ```bash
-docker compose exec app bash
+docker compose -f docker-compose.dev.yaml exec app bash
 ```
 
-- Gerar os certificados para os testes e copiar para os arquivos .env, .env.test e env.e2e
+- Gerar private e public key para os testes. Copiar para os arquivos .env, .env.test e env.e2e
 
 ```bash
 node create-rsa
-node generate-token
 ```
+
+- Credenciais do Google Cloud. Na variável GOOGLE_CLOUD_CREDENTIALS, colocar tudo numa linha nos arquivos .env, .env.test e .env.e2e
+
+```bash
+GOOGLE_CLOUD_CREDENTIALS
+GOOGLE_CLOUD_STORAGE_BUCKET_NAME
+```
+
+# Testes Automatizados
 
 - Executar os testes de unidade e integração
 
@@ -38,8 +44,8 @@ npm run test:cov
 - resultado esperado:
 
 ```bash
-Test Suites: 54 passed, 54 total
-Tests:       287 passed, 287 total
+Test Suites: 123 passed, 123 total
+Tests:       714 passed, 714 total
 Snapshots:   0 total
 ```
 
@@ -52,8 +58,8 @@ npm run test:e2e
 - resultado esperado:
 
 ```bash
-Test Suites: 11 passed, 11 total
-Tests:       64 passed, 64 total
+Test Suites: 21 passed, 21 total
+Tests:       205 passed, 205 total
 Snapshots:   0 total
 ```
 
@@ -63,13 +69,35 @@ Snapshots:   0 total
 npm run tsc:check
 ```
 
+# Testes Manuais
+
+- Executar o script generate-token.js
+
+```bash
+node generate-token
+```
+
+- colar o token gerado na variável @jwtToken do arquivo api.http
+
+- Executar o microsserviço
+
+```bash
+npm run start
+```
+
+- Fazer as chamadas da API usando o arquivo api.http
+
+- Encerrar o microsserviço com tecla CRTL+c
+
 - Sair do container teclando CRTL+d
 
 - Eliminar os containers criados
 
 ```bash
-docker compose down
+docker compose -f docker-compose.dev.yaml down
 ```
+
+# Migrações
 
 - Executar migrações para criar tabelas no banco de dados
 - O build tem que estar criado na pasta ./dist
@@ -78,7 +106,3 @@ docker compose down
 npm run migrate:js up
 npm run migrate:js down -- --to 0
 ```
-
-# TODO
-
-- Editar as instruções para rodar o microsserviço.

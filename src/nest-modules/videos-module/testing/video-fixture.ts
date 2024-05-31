@@ -2,6 +2,7 @@ import { CastMember } from "@core/cast-member/domain/cast-member.aggregate";
 import { Category } from "@core/category/domain/category.aggregate";
 import { Genre } from "@core/genre/domain/genre.aggregate";
 import { SortDirection } from "@core/shared/domain/repository/search-params";
+import { Rating } from "@core/video/domain/rating.vo";
 import { Video } from "@core/video/domain/video.aggregate";
 
 const _keysInResponse = [
@@ -22,8 +23,80 @@ const _keysInResponse = [
   "created_at",
 ];
 
-export class GetVideoFixture {
+export class AVideoFixture {
   static keysInResponse = _keysInResponse;
+
+  static arrange() {
+    const category = Category.fake().aCategory().build();
+    const genre = Genre.fake()
+      .aGenre()
+      .addCategoryId(category.category_id)
+      .build();
+    const castMember = CastMember.fake().aCastMember().build();
+    const video = Video.fake()
+      .aVideoWithAllMedias()
+      .addCategoryId(category.category_id)
+      .addGenreId(genre.genre_id)
+      .addCastMemberId(castMember.cast_member_id)
+      .build();
+
+    return {
+      entity: video,
+      relations: {
+        categories: [category],
+        genres: [genre],
+        castMembers: [castMember],
+      },
+      send_data: {
+        id: video.video_id.id,
+      },
+      expected: {
+        id: video.video_id.id,
+        title: video.title,
+        description: video.description,
+        rating: video.rating.value,
+        year_launched: video.year_launched,
+        duration: video.duration,
+        is_opened: video.is_opened,
+        is_published: video.is_published,
+        created_at: video.created_at.toISOString(),
+        categories_id: expect.arrayContaining([category.category_id.id]),
+        categories: expect.arrayContaining([
+          {
+            id: category.category_id.id,
+            name: category.name,
+            created_at: category.created_at.toISOString(),
+          },
+        ]),
+        genres: expect.arrayContaining([
+          {
+            id: genre.genre_id.id,
+            name: genre.name,
+            is_active: genre.is_active,
+            categories_id: expect.arrayContaining([category.category_id.id]),
+            categories: expect.arrayContaining([
+              {
+                id: category.category_id.id,
+                name: category.name,
+                created_at: category.created_at.toISOString(),
+              },
+            ]),
+            created_at: genre.created_at.toISOString(),
+          },
+        ]),
+        genres_id: expect.arrayContaining([genre.genre_id.id]),
+        cast_members: expect.arrayContaining([
+          {
+            id: castMember.cast_member_id.id,
+            name: castMember.name,
+            type: castMember.type.type,
+            created_at: castMember.created_at.toISOString(),
+          },
+        ]),
+        cast_members_id: expect.arrayContaining([castMember.cast_member_id.id]),
+      },
+    };
+  }
 }
 
 export class CreateVideoFixture {
@@ -754,45 +827,113 @@ export class UpdateVideoFixture {
   static keysInResponse = _keysInResponse;
 
   static arrangeForSave() {
-    const faker = Genre.fake().aGenre().withName("test name");
-
     const category = Category.fake().aCategory().build();
+    const genre = Genre.fake()
+      .aGenre()
+      .addCategoryId(category.category_id)
+      .build();
+    const castMember = CastMember.fake().aCastMember().build();
+    const video = Video.fake()
+      .aVideoWithAllMedias()
+      .withTitle("test name")
+      .addCategoryId(category.category_id)
+      .addGenreId(genre.genre_id)
+      .addCastMemberId(castMember.cast_member_id)
+      .build();
 
+    const faker = Video.fake().aVideoWithAllMedias();
+    const newCategory = Category.fake().aCategory().build();
+    const title = faker.title;
     const case1 = {
-      entity: faker.addCategoryId(category.category_id).build(),
+      label: "TITLE & TWO CATEGORIES",
+      entity: video,
       relations: {
-        categories: [category],
+        categories: [category, newCategory],
+        genres: [genre],
+        castMembers: [castMember],
       },
       send_data: {
-        name: faker.name,
-        categories_id: [category.category_id.id],
+        title: title,
+        categories_id: [category.category_id.id, newCategory.category_id.id],
       },
       expected: {
-        name: faker.name,
-        categories_id: expect.arrayContaining([category.category_id.id]),
+        id: video.video_id.id,
+        title: title,
+        description: video.description,
+        rating: video.rating.value,
+        year_launched: video.year_launched,
+        duration: video.duration,
+        is_opened: video.is_opened,
+        is_published: video.is_published,
+        created_at: video.created_at.toISOString(),
+        categories_id: expect.arrayContaining([
+          category.category_id.id,
+          newCategory.category_id.id,
+        ]),
         categories: expect.arrayContaining([
           {
             id: category.category_id.id,
             name: category.name,
             created_at: category.created_at.toISOString(),
           },
+          {
+            id: newCategory.category_id.id,
+            name: newCategory.name,
+            created_at: newCategory.created_at.toISOString(),
+          },
         ]),
-        is_active: true,
+        genres: expect.arrayContaining([
+          {
+            id: genre.genre_id.id,
+            name: genre.name,
+            is_active: genre.is_active,
+            categories_id: expect.arrayContaining([category.category_id.id]),
+            categories: expect.arrayContaining([
+              {
+                id: category.category_id.id,
+                name: category.name,
+                created_at: category.created_at.toISOString(),
+              },
+            ]),
+            created_at: genre.created_at.toISOString(),
+          },
+        ]),
+        genres_id: expect.arrayContaining([genre.genre_id.id]),
+        cast_members: expect.arrayContaining([
+          {
+            id: castMember.cast_member_id.id,
+            name: castMember.name,
+            type: castMember.type.type,
+            created_at: castMember.created_at.toISOString(),
+          },
+        ]),
+        cast_members_id: expect.arrayContaining([castMember.cast_member_id.id]),
       },
     };
+
+    const rating = Rating.create18().value;
 
     const case2 = {
-      entity: faker.addCategoryId(category.category_id).build(),
+      label: "RATING",
+      entity: video,
       relations: {
         categories: [category],
+        genres: [genre],
+        castMembers: [castMember],
       },
       send_data: {
-        name: faker.name,
-        categories_id: [category.category_id.id],
-        is_active: false,
+        rating: rating,
       },
       expected: {
-        name: faker.name,
+        id: video.video_id.id,
+        title: video.title,
+        description: video.description,
+        rating: rating,
+        year_launched: video.year_launched,
+        duration: video.duration,
+        is_opened: video.is_opened,
+        is_published: video.is_published,
+        created_at: video.created_at.toISOString(),
         categories_id: expect.arrayContaining([category.category_id.id]),
         categories: expect.arrayContaining([
           {
@@ -801,96 +942,251 @@ export class UpdateVideoFixture {
             created_at: category.created_at.toISOString(),
           },
         ]),
-        is_active: false,
+        genres: expect.arrayContaining([
+          {
+            id: genre.genre_id.id,
+            name: genre.name,
+            is_active: genre.is_active,
+            categories_id: expect.arrayContaining([category.category_id.id]),
+            categories: expect.arrayContaining([
+              {
+                id: category.category_id.id,
+                name: category.name,
+                created_at: category.created_at.toISOString(),
+              },
+            ]),
+            created_at: genre.created_at.toISOString(),
+          },
+        ]),
+        genres_id: expect.arrayContaining([genre.genre_id.id]),
+        cast_members: expect.arrayContaining([
+          {
+            id: castMember.cast_member_id.id,
+            name: castMember.name,
+            type: castMember.type.type,
+            created_at: castMember.created_at.toISOString(),
+          },
+        ]),
+        cast_members_id: expect.arrayContaining([castMember.cast_member_id.id]),
       },
     };
 
-    const categories = Category.fake().theCategories(3).build();
-    const case3 = {
-      entity: faker.addCategoryId(category.category_id).build(),
-      relations: {
-        categories: [category, ...categories],
-      },
-      send_data: {
-        name: faker.name,
-        categories_id: [
-          categories[0].category_id.id,
-          categories[1].category_id.id,
-          categories[2].category_id.id,
-        ],
-      },
-      expected: {
-        name: faker.name,
-        categories_id: expect.arrayContaining([
-          categories[0].category_id.id,
-          categories[1].category_id.id,
-          categories[2].category_id.id,
-        ]),
-        categories: expect.arrayContaining([
-          {
-            id: categories[0].category_id.id,
-            name: categories[0].name,
-            created_at: categories[0].created_at.toISOString(),
-          },
-          {
-            id: categories[1].category_id.id,
-            name: categories[1].name,
-            created_at: categories[1].created_at.toISOString(),
-          },
-          {
-            id: categories[2].category_id.id,
-            name: categories[2].name,
-            created_at: categories[2].created_at.toISOString(),
-          },
-        ]),
-        is_active: true,
-      },
-    };
-
-    return [case1, case2, case3];
+    return [case1, case2];
   }
 
   static arrangeInvalidRequest() {
-    const faker = Genre.fake().aGenre();
     const defaultExpected = {
       statusCode: 422,
       error: "Unprocessable Entity",
     };
+    const category = Category.fake().aCategory().build();
+    const genre = Genre.fake()
+      .aGenre()
+      .addCategoryId(category.category_id)
+      .build();
+    const castMember = CastMember.fake().anActor().build();
+    const entity = Video.fake()
+      .aVideoWithoutMedias()
+      .addCategoryId(category.category_id)
+      .addGenreId(genre.genre_id)
+      .addCastMemberId(castMember.cast_member_id)
+      .build();
 
-    return {
+    const relations = {
+      category: category,
+      genre: genre,
+      castMember: castMember,
+    };
+
+    const cases = {
+      YEAR_LAUCHED_1899: {
+        send_data: {
+          year_launched: 1899,
+        },
+        expected: {
+          message: ["year_launched must not be less than 1900"],
+          ...defaultExpected,
+        },
+      },
+      DURATION_ZERO: {
+        send_data: {
+          duration: 0,
+        },
+        expected: {
+          message: ["duration must not be less than 1"],
+          ...defaultExpected,
+        },
+      },
+      RATING_ZERO: {
+        send_data: {
+          rating: 0,
+        },
+        expected: {
+          message: ["rating must be a string"],
+          ...defaultExpected,
+        },
+      },
+      IS_OPENED_ZERO: {
+        send_data: {
+          is_opened: 0,
+        },
+        expected: {
+          message: ["is_opened must be a boolean value"],
+          ...defaultExpected,
+        },
+      },
+      CATEGORIES_ID_EMPTY_STRING: {
+        send_data: {
+          categories_id: "",
+        },
+        expected: {
+          message: [
+            "categories_id must be an array",
+            "each value in categories_id must be a UUID",
+          ],
+          ...defaultExpected,
+        },
+      },
       CATEGORIES_ID_NOT_VALID: {
         send_data: {
-          name: faker.name,
-          categories_id: ["a"],
+          categories_id: [1],
         },
         expected: {
           message: ["each value in categories_id must be a UUID"],
           ...defaultExpected,
         },
       },
+      GENRES_ID_EMPTY_STRING: {
+        send_data: {
+          genres_id: "",
+        },
+        expected: {
+          message: [
+            "genres_id must be an array",
+            "each value in genres_id must be a UUID",
+          ],
+          ...defaultExpected,
+        },
+      },
+      GENRES_ID_NOT_VALID: {
+        send_data: {
+          genres_id: [1],
+        },
+        expected: {
+          message: ["each value in genres_id must be a UUID"],
+          ...defaultExpected,
+        },
+      },
+      CAST_MEMBERS_ID_EMPTY_STRING: {
+        send_data: {
+          cast_members_id: "",
+        },
+        expected: {
+          message: [
+            "cast_members_id must be an array",
+            "each value in cast_members_id must be a UUID",
+          ],
+          ...defaultExpected,
+        },
+      },
+      CAST_MEMBERS_ID_NOT_VALID: {
+        send_data: {
+          cast_members_id: [1],
+        },
+        expected: {
+          message: ["each value in cast_members_id must be a UUID"],
+          ...defaultExpected,
+        },
+      },
+      CATEGORIES_GENRES_CAST_MEMBERS_NOT_FOUND: {
+        send_data: {
+          categories_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+          genres_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+          cast_members_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+        },
+        expected: {
+          message: [
+            "Category Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+            "Genre Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+            "CastMember Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+          ],
+          ...defaultExpected,
+        },
+      },
+    };
+
+    return {
+      entity,
+      relations,
+      cases,
     };
   }
 
   static arrangeForEntityValidationError() {
-    const faker = Genre.fake().aGenre();
+    const faker = Video.fake().aVideoWithAllMedias();
     const defaultExpected = {
       statusCode: 422,
       error: "Unprocessable Entity",
     };
 
-    return {
-      CATEGORIES_ID_NOT_EXISTS: {
+    const category = Category.fake().aCategory().build();
+    const genre = Genre.fake()
+      .aGenre()
+      .addCategoryId(category.category_id)
+      .build();
+    const castMember = CastMember.fake().anActor().build();
+    const entity = Video.fake()
+      .aVideoWithoutMedias()
+      .addCategoryId(category.category_id)
+      .addGenreId(genre.genre_id)
+      .addCastMemberId(castMember.cast_member_id)
+      .build();
+
+    const relations = {
+      category: category,
+      genre: genre,
+      castMember: castMember,
+    };
+
+    const cases = {
+      TITLE_TOO_LONG: {
         send_data: {
-          name: faker.withName("action").name,
-          categories_id: ["d8952775-5f69-42d5-9e94-00f097e1b98c"],
+          title: faker.withInvalidTitleTooLong().title,
+          categories_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+          genres_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+          cast_members_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
         },
         expected: {
           message: [
-            "Category Not Found using ID d8952775-5f69-42d5-9e94-00f097e1b98c",
+            "title must be shorter than or equal to 255 characters",
+            "Category Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+            "Genre Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+            "CastMember Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
           ],
           ...defaultExpected,
         },
       },
+      CATEGORIES_GENRES_CAST_MEMBERS_NOT_FOUND: {
+        send_data: {
+          categories_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+          genres_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+          cast_members_id: ["fff26d29-0152-42ef-bb5d-b9523bbb3e49"],
+        },
+        expected: {
+          message: [
+            "Category Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+            "Genre Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+            "CastMember Not Found using ID fff26d29-0152-42ef-bb5d-b9523bbb3e49",
+          ],
+          ...defaultExpected,
+        },
+      },
+    };
+
+    return {
+      entity,
+      relations,
+      cases,
     };
   }
 }
@@ -898,10 +1194,17 @@ export class UpdateVideoFixture {
 export class ListVideosFixture {
   static arrangeIncrementedWithCreatedAt() {
     const category = Category.fake().aCategory().build();
-    const _entities = Genre.fake()
-      .theGenres(4)
+    const genre = Genre.fake()
+      .aGenre()
       .addCategoryId(category.category_id)
-      .withName((i) => i + "")
+      .build();
+    const castMember = CastMember.fake().aCastMember().build();
+    const _entities = Video.fake()
+      .theVideosWithAllMedias(4)
+      .addCategoryId(category.category_id)
+      .addGenreId(genre.genre_id)
+      .addCastMemberId(castMember.cast_member_id)
+      .withTitle((i) => i + "")
       .withCreatedAt((i) => new Date(new Date().getTime() + i * 2000))
       .build();
 
@@ -914,10 +1217,13 @@ export class ListVideosFixture {
 
     const relations = {
       categories: new Map([[category.category_id.id, category]]),
+      genres: new Map([[genre.genre_id.id, genre]]),
+      castMembers: new Map([[castMember.cast_member_id.id, castMember]]),
     };
 
     const arrange = [
       {
+        label: "EMPTY",
         send_data: {},
         expected: {
           entities: [
@@ -935,6 +1241,7 @@ export class ListVideosFixture {
         },
       },
       {
+        label: "PAGE 1 PER_PAGE 2",
         send_data: {
           page: 1,
           per_page: 2,
@@ -950,6 +1257,7 @@ export class ListVideosFixture {
         },
       },
       {
+        label: "PAGE 2 PER_PAGE 2",
         send_data: {
           page: 2,
           per_page: 2,
@@ -971,60 +1279,94 @@ export class ListVideosFixture {
 
   static arrangeUnsorted() {
     const categories = Category.fake().theCategories(4).build();
+    const genres = [
+      Genre.fake().aGenre().addCategoryId(categories[0].category_id).build(),
+      Genre.fake().aGenre().addCategoryId(categories[1].category_id).build(),
+      Genre.fake().aGenre().addCategoryId(categories[2].category_id).build(),
+      Genre.fake().aGenre().addCategoryId(categories[3].category_id).build(),
+    ];
+    const castMembers = CastMember.fake().theCastMembers(4).build();
 
     const relations = {
       categories: new Map(
         categories.map((category) => [category.category_id.id, category]),
+      ),
+      genres: new Map(genres.map((genre) => [genre.genre_id.id, genre])),
+      castMembers: new Map(
+        castMembers.map((castMember) => [
+          castMember.cast_member_id.id,
+          castMember,
+        ]),
       ),
     };
 
     const created_at = new Date();
 
     const entitiesMap = {
-      test: Genre.fake()
-        .aGenre()
+      test: Video.fake()
+        .aVideoWithAllMedias()
         .addCategoryId(categories[0].category_id)
         .addCategoryId(categories[1].category_id)
-        .withName("test")
+        .addGenreId(genres[0].genre_id)
+        .addGenreId(genres[1].genre_id)
+        .addCastMemberId(castMembers[0].cast_member_id)
+        .addCastMemberId(castMembers[1].cast_member_id)
+        .withTitle("test")
         .withCreatedAt(new Date(created_at.getTime() + 1000))
         .build(),
-      a: Genre.fake()
-        .aGenre()
+      a: Video.fake()
+        .aVideoWithAllMedias()
         .addCategoryId(categories[0].category_id)
         .addCategoryId(categories[1].category_id)
-        .withName("a")
+        .addGenreId(genres[0].genre_id)
+        .addGenreId(genres[1].genre_id)
+        .addCastMemberId(castMembers[0].cast_member_id)
+        .addCastMemberId(castMembers[1].cast_member_id)
+        .withTitle("a")
         .withCreatedAt(new Date(created_at.getTime() + 2000))
         .build(),
-      TEST: Genre.fake()
-        .aGenre()
+      TEST: Video.fake()
+        .aVideoWithAllMedias()
         .addCategoryId(categories[0].category_id)
         .addCategoryId(categories[1].category_id)
         .addCategoryId(categories[2].category_id)
-        .withName("TEST")
+        .addGenreId(genres[0].genre_id)
+        .addGenreId(genres[1].genre_id)
+        .addGenreId(genres[2].genre_id)
+        .addCastMemberId(castMembers[0].cast_member_id)
+        .addCastMemberId(castMembers[1].cast_member_id)
+        .addCastMemberId(castMembers[2].cast_member_id)
+        .withTitle("TEST")
         .withCreatedAt(new Date(created_at.getTime() + 3000))
         .build(),
-      e: Genre.fake()
-        .aGenre()
+      e: Video.fake()
+        .aVideoWithAllMedias()
         .addCategoryId(categories[3].category_id)
-        .withName("e")
+        .addGenreId(genres[3].genre_id)
+        .addCastMemberId(castMembers[3].cast_member_id)
+        .withTitle("e")
         .withCreatedAt(new Date(created_at.getTime() + 4000))
         .build(),
-      TeSt: Genre.fake()
-        .aGenre()
+      TeSt: Video.fake()
+        .aVideoWithAllMedias()
         .addCategoryId(categories[1].category_id)
         .addCategoryId(categories[2].category_id)
-        .withName("TeSt")
+        .addGenreId(genres[1].genre_id)
+        .addGenreId(genres[2].genre_id)
+        .addCastMemberId(castMembers[1].cast_member_id)
+        .addCastMemberId(castMembers[2].cast_member_id)
+        .withTitle("TeSt")
         .withCreatedAt(new Date(created_at.getTime() + 5000))
         .build(),
     };
 
-    const arrange_filter_by_name_sort_name_asc = [
+    const arrange_filter_by_title_sort_title_asc = [
       {
         send_data: {
           page: 1,
           per_page: 2,
-          sort: "name",
-          filter: { name: "TEST" },
+          sort: "title",
+          filter: { title: "TEST" },
         },
         get label() {
           return JSON.stringify(this.send_data);
@@ -1043,8 +1385,8 @@ export class ListVideosFixture {
         send_data: {
           page: 2,
           per_page: 2,
-          sort: "name",
-          filter: { name: "TEST" },
+          sort: "title",
+          filter: { title: "TEST" },
         },
         get label() {
           return JSON.stringify(this.send_data);
@@ -1172,7 +1514,7 @@ export class ListVideosFixture {
 
     return {
       arrange: [
-        ...arrange_filter_by_name_sort_name_asc,
+        ...arrange_filter_by_title_sort_title_asc,
         ...arrange_filter_by_categories_id_and_sort_by_created_desc,
       ],
       entitiesMap,

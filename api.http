@@ -1,5 +1,5 @@
 ## valid uuid = b8ee6449-b662-4245-9f12-430dfb74df6c
-
+@jwtToken = xxx
 ### 
 # @name createCategory
 POST http://localhost:3000/categories
@@ -20,7 +20,7 @@ GET http://localhost:3000/categories
 Authorization: Bearer {{jwtToken}}
 
 ###
-GET http://localhost:3000/categories/8f4b7b9c-3f7a-4b6c-8b0c-1c9c5b8b9b6a
+GET http://localhost:3000/categories/{{categoryId}}
 Authorization: Bearer {{jwtToken}}
 
 
@@ -28,6 +28,7 @@ Authorization: Bearer {{jwtToken}}
 # @name createGenre
 POST http://localhost:3000/genres
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
     "name": "Genre 1",
@@ -45,6 +46,7 @@ Content-Type: application/json
 # @name createCastMember
 POST http://localhost:3000/cast-members
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
     "name": "Cast Member 1",
@@ -60,6 +62,7 @@ Content-Type: application/json
 # @name createVideo
 POST http://localhost:3000/videos
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
     "title": "Video 1",
@@ -86,11 +89,13 @@ Content-Type: application/json
 ###
 
 GET http://localhost:3000/videos/{{videoId}}
+Authorization: Bearer {{jwtToken}}
 
 ###
 # @name updateVideo
 PATCH http://localhost:3000/videos/{{videoId}}
 Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
 
 {
     "title": "A volta dos que não foram",
@@ -114,6 +119,7 @@ Content-Type: application/json
 # @name uploadVideo
 PATCH http://localhost:3000/videos/{{videoId}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary1234
+Authorization: Bearer {{jwtToken}}
 
 ------WebKitFormBoundary1234
 Content-Disposition: form-data; name="video"; filename="video.mp4"
@@ -126,6 +132,7 @@ Content-Type: video/mp4
 # @name uploadVideoWithFileAndDataTogetherError
 PATCH http://localhost:3000/videos/{{videoId}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary1234
+Authorization: Bearer {{jwtToken}}
 
 ------WebKitFormBoundary1234
 Content-Disposition: form-data; name="video"; filename="video.mp4"
@@ -143,6 +150,7 @@ Video teste
 # @name uploadVideoOnlyOneFileError
 PATCH http://localhost:3000/videos/{{videoId}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary1234
+Authorization: Bearer {{jwtToken}}
 
 ------WebKitFormBoundary1234
 Content-Disposition: form-data; name="banner"; filename="video.mp4"
@@ -160,6 +168,7 @@ Content-Type: video/mp4
 # @name uploadSpecializedEndpoint
 PATCH http://localhost:3000/videos/{{videoId}}/upload
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary1234
+Authorization: Bearer {{jwtToken}}
 
 ------WebKitFormBoundary1234
 Content-Disposition: form-data; name="video"; filename="video.mp4"
@@ -210,4 +219,4 @@ Authorization: Bearer {{jwtToken}}
 
 ###
 
-@jwtToken = xxx
+

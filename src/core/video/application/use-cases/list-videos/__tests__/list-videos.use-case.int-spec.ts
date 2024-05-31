@@ -1,19 +1,14 @@
-import { CastMember } from "@core/cast-member/domain/cast-member.aggregate";
 import { CastMemberSequelizeRepository } from "@core/cast-member/infra/db/sequelize/cast-member-sequelize.repository";
 import { CastMemberModel } from "@core/cast-member/infra/db/sequelize/cast-member.model";
-import { Category } from "@core/category/domain/category.aggregate";
 import { CategorySequelizeRepository } from "@core/category/infra/db/sequelize/category-sequelize.repository";
 import { CategoryModel } from "@core/category/infra/db/sequelize/category.model";
-import { Genre } from "@core/genre/domain/genre.aggregate";
 import { GenreSequelizeRepository } from "@core/genre/infra/db/sequelize/genre-sequelize.repository";
 import { GenreModel } from "@core/genre/infra/db/sequelize/genre.model";
 import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
-import { Video } from "@core/video/domain/video.aggregate";
 import { setupSequelizeForVideo } from "@core/video/infra/db/sequelize/testing/helpers";
 import { VideoSequelizeRepository } from "@core/video/infra/db/sequelize/video-sequelize.repository";
 import { VideoModel } from "@core/video/infra/db/sequelize/video.model";
 import { ListVideosUseCase } from "../list-videos.use-case";
-import { expectVideoOutput } from "./list-videos-tests-utils";
 import { ListVideosUseCaseFixture } from "./list-videos.use-case.fixture";
 
 describe("ListVideosUseCase Integration Test", () => {

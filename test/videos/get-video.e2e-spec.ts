@@ -13,7 +13,7 @@ import { CAST_MEMBERS_PROVIDERS } from "../../src/nest-modules/cast-members-modu
 import { CATEGORY_PROVIDERS } from "../../src/nest-modules/categories-module/categories.providers";
 import { GENRES_PROVIDERS } from "../../src/nest-modules/genres-module/genres.providers";
 import { startApp } from "../../src/nest-modules/shared-module/testing/helpers";
-import { GetVideoFixture } from "../../src/nest-modules/videos-module/testing/video-fixture";
+import { AVideoFixture } from "../../src/nest-modules/videos-module/testing/video-fixture";
 import { VideosController } from "../../src/nest-modules/videos-module/videos.controller";
 import { VIDEOS_PROVIDERS } from "../../src/nest-modules/videos-module/videos.providers";
 
@@ -109,7 +109,7 @@ describe("VideosController (e2e)", () => {
         .get(`/videos/${video.video_id.id}`)
         .authenticate(appHelper.app)
         .expect(200);
-      const keyInResponse = GetVideoFixture.keysInResponse;
+      const keyInResponse = AVideoFixture.keysInResponse;
       expect(Object.keys(res.body)).toStrictEqual(["data"]);
       expect(Object.keys(res.body.data)).toStrictEqual(keyInResponse);
 

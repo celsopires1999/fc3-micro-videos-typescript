@@ -13,11 +13,11 @@ import { VideoModelMapper } from "./video-model.mapper";
 import { VideoModel } from "./video.model";
 
 export class VideoSequelizeRepository implements IVideoRepository {
-  sortableFields: string[] = ["name", "created_at"];
+  sortableFields: string[] = ["title", "created_at"];
   orderBy = {
     mysql: {
-      name: (sort_dir: SortDirection) =>
-        `binary ${this.videoModel.name}.name ${sort_dir}`,
+      title: (sort_dir: SortDirection) =>
+        `binary ${this.videoModel.name}.title ${sort_dir}`,
     },
   };
   relations_include = [
@@ -194,11 +194,22 @@ export class VideoSequelizeRepository implements IVideoRepository {
 
     this.uow.addAggregateRoot(entity);
   }
+  /*
+  Na aula "Adicionando agregados no unit of work" 
+  dentro do capítulo "Orquestração de eventos na camada de aplicação"
+  Havia duas possibilidades de implementação:
+  1. Receber o agregado como parâmetro; ou
+  2. Ler o agregado com base no ID.
 
-  //TODO - implementar mudança de VideoID para o agregado video
-  //async delete(video: Video)
+  Para mudar a interface de repositório, optei por implemebtar o 2
+*/
   async delete(id: VideoId): Promise<void> {
-    //consultar o agregado
+    const video = await this.findById(id);
+
+    if (!video) {
+      throw new NotFoundError(id.id, this.getEntity());
+    }
+
     const videoCategoryRelation =
       this.videoModel.associations.categories_id.target;
     const videoGenreRelation = this.videoModel.associations.genres_id.target;
@@ -239,7 +250,7 @@ export class VideoSequelizeRepository implements IVideoRepository {
       throw new NotFoundError(id.id, this.getEntity());
     }
 
-    //this.uow.addAggregateRoot(video);
+    this.uow.addAggregateRoot(video);
   }
 
   private async _get(id: string): Promise<VideoModel | null> {
@@ -355,13 +366,13 @@ export class VideoSequelizeRepository implements IVideoRepository {
       "SELECT",
       `DISTINCT ${videoAlias}.\`video_id\`,${columnOrder} FROM ${videoTableName} as ${videoAlias}`,
       props.filter?.categories_id
-        ? `INNER JOIN ${videoCategoryTableName} ON ${videoAlias}.\`video_id\` = ${videoCategoryTableName}.\`category_id\``
+        ? `INNER JOIN ${videoCategoryTableName} ON ${videoAlias}.\`video_id\` = ${videoCategoryTableName}.\`video_id\``
         : "",
       props.filter?.genres_id
-        ? `INNER JOIN ${videoGenreTableName} ON ${videoAlias}.\`video_id\` = ${videoGenreTableName}.\`genre_id\``
+        ? `INNER JOIN ${videoGenreTableName} ON ${videoAlias}.\`video_id\` = ${videoGenreTableName}.\`video_id\``
         : "",
       props.filter?.cast_members_id
-        ? `INNER JOIN ${videoGenreTableName} ON ${videoAlias}.\`video_id\` = ${videoGenreTableName}.\`cast_member_id\``
+        ? `INNER JOIN ${videoCastMemberTableName} ON ${videoAlias}.\`video_id\` = ${videoCastMemberTableName}.\`video_id\``
         : "",
       wheres.length
         ? `WHERE ${wheres.map((w) => w.rawCondition).join(" AND ")}`

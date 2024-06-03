@@ -10,8 +10,24 @@ import { startApp } from "../../src/nest-modules/shared-module/testing/helpers";
 
 describe("CastMembersController (e2e)", () => {
   describe("/cast-members (POST)", () => {
+    const appHelper = startApp();
+    describe("unauthenticated", () => {
+      test("should return 401 when not authenticated", () => {
+        return request(appHelper.app.getHttpServer())
+          .post("/cast-members")
+          .send({})
+          .expect(401);
+      });
+
+      test("should return 403 when not authenticated as admin", () => {
+        return request(appHelper.app.getHttpServer())
+          .post("/cast-members")
+          .authenticate(appHelper.app, false)
+          .send({})
+          .expect(403);
+      });
+    });
     describe("should return a response error with 422 when request body is invalid", () => {
-      const appHelper = startApp();
       const invalidRequest = CreateCastMemberFixture.arrangeInvalidRequest();
       const arrange = Object.keys(invalidRequest).map((key) => ({
         label: key,
@@ -20,6 +36,7 @@ describe("CastMembersController (e2e)", () => {
       test.each(arrange)("when body is $label", ({ value }) => {
         return request(appHelper.app.getHttpServer())
           .post("/cast-members")
+          .authenticate(appHelper.app)
           .send(value.send_data)
           .expect(422)
           .expect(value.expected);
@@ -27,7 +44,6 @@ describe("CastMembersController (e2e)", () => {
     });
 
     describe("should a response error with 422 when throw EntityValidationError", () => {
-      const appHelper = startApp();
       const validationError =
         CreateCastMemberFixture.arrangeForEntityValidationError();
       const arrange = Object.keys(validationError).map((key) => ({
@@ -37,6 +53,7 @@ describe("CastMembersController (e2e)", () => {
       test.each(arrange)("when body is $label", ({ value }) => {
         return request(appHelper.app.getHttpServer())
           .post("/cast-members")
+          .authenticate(appHelper.app)
           .send(value.send_data)
           .expect(422)
           .expect(value.expected);
@@ -44,7 +61,6 @@ describe("CastMembersController (e2e)", () => {
     });
 
     describe("should create a cast member", () => {
-      const appHelper = startApp();
       const arrange = CreateCastMemberFixture.arrangeForCreate();
       let castMemberRepo: ICastMemberRepository;
       beforeEach(async () => {
@@ -57,6 +73,7 @@ describe("CastMembersController (e2e)", () => {
         async ({ send_data, expected }) => {
           const res = await request(appHelper.app.getHttpServer())
             .post("/cast-members")
+            .authenticate(appHelper.app)
             .send(send_data)
             .expect(201);
 

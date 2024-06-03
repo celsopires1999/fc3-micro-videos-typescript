@@ -17,12 +17,16 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from "@nestjs/common";
+import { AuthGuard } from "../auth-module/auth.guard";
+import { CheckIsAdminGuard } from "../auth-module/check-is-admin.guard";
 import { CreateGenreDto } from "./dto/create-genre.dto";
 import { SearchGenreDto } from "./dto/search-genres.dto";
 import { UpdateGenreDto } from "./dto/update-genre.dto";
 import { GenreCollectionPresenter, GenrePresenter } from "./genres.presenter";
 
+@UseGuards(AuthGuard, CheckIsAdminGuard)
 @Controller("genres")
 export class GenresController {
   @Inject(CreateGenreUseCase)

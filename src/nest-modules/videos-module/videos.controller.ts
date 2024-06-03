@@ -1,3 +1,4 @@
+import { VideoOutput } from "@core/video/application/use-cases/common/video-output";
 import { CreateVideoUseCase } from "@core/video/application/use-cases/create-video/create-video.use-case";
 import { GetVideoUseCase } from "@core/video/application/use-cases/get-video/get-video.use-case";
 import { UpdateVideoInput } from "@core/video/application/use-cases/update-video/update-video.input";
@@ -8,20 +9,31 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Inject,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from "@nestjs/common";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { AuthGuard } from "../auth-module/auth.guard";
+import { CheckIsAdminGuard } from "../auth-module/check-is-admin.guard";
 import { CreateVideoDto } from "./dto/create-video.dto";
 import { UpdateVideoDto } from "./dto/update-video.dto";
+import { VideoCollectionPresenter, VideoPresenter } from "./videos.presenter";
+import { ListVideosUseCase } from "@core/video/application/use-cases/list-videos/list-videos.use-case";
+import { SearchVideosDto } from "./dto/search-videos.dto";
+import { DeleteVideoUseCase } from "@core/video/application/use-cases/delete-video/delete-video.use-case";
 
+@UseGuards(AuthGuard, CheckIsAdminGuard)
 @Controller("videos")
 export class VideosController {
   @Inject(CreateVideoUseCase)
@@ -36,17 +48,25 @@ export class VideosController {
   @Inject(GetVideoUseCase)
   private getUseCase: GetVideoUseCase;
 
+  @Inject(ListVideosUseCase)
+  private listUseCase: ListVideosUseCase;
+
+  @Inject(DeleteVideoUseCase)
+  private deleteUseCase: DeleteVideoUseCase;
+
   @Post()
   async create(@Body() createVideoDto: CreateVideoDto) {
     const { id } = await this.createUseCase.execute(createVideoDto);
-    return await this.getUseCase.execute({ id });
+    const output = await this.getUseCase.execute({ id });
+    return VideosController.serialize(output);
   }
 
   @Get(":id")
   async findOne(
     @Param("id", new ParseUUIDPipe({ errorHttpStatusCode: 422 })) id: string,
   ) {
-    return await this.getUseCase.execute({ id });
+    const output = await this.getUseCase.execute({ id });
+    return VideosController.serialize(output);
   }
 
   @UseInterceptors(
@@ -87,18 +107,20 @@ export class VideosController {
       });
       const input = new UpdateVideoInput({ id, ...data });
       await this.updateUseCase.execute(input);
-      return await this.getUseCase.execute({ id });
+      const output = await this.getUseCase.execute({ id });
+      return VideosController.serialize(output);
     }
 
-    const hasMoreThanOneFile = Object.keys(files).length > 1;
+    const hasMoreThanOneFile = files && Object.keys(files).length > 1;
 
     if (hasMoreThanOneFile) {
       throw new BadRequestException("Only one file can be sent");
     }
 
-    const hasAudioVideoMedia = files.trailer?.length || files.video?.length;
-    const fileField = Object.keys(files)[0];
-    const file = files[fileField][0];
+    const hasAudioVideoMedia =
+      !!files && (files.trailer?.length || files.video?.length);
+    const fileField = !!files && Object.keys(files)[0];
+    const file = !!files && files[fileField][0];
 
     if (hasAudioVideoMedia) {
       const dto: UploadAudioVideoMediaInput = {
@@ -123,7 +145,8 @@ export class VideosController {
     } else {
       //use case upload image media
     }
-    return await this.getUseCase.execute({ id });
+    const output = await this.getUseCase.execute({ id });
+    return VideosController.serialize(output);
   }
 
   @UseInterceptors(
@@ -181,5 +204,23 @@ export class VideosController {
       //use case upload image media
     }
     return await this.getUseCase.execute({ id });
+  }
+
+  @Get()
+  async search(@Query() searchParams: SearchVideosDto) {
+    const output = await this.listUseCase.execute(searchParams);
+    return new VideoCollectionPresenter(output);
+  }
+
+  @HttpCode(204)
+  @Delete(":id")
+  async remove(
+    @Param("id", new ParseUUIDPipe({ errorHttpStatusCode: 422 })) id: string,
+  ) {
+    return this.deleteUseCase.execute({ id });
+  }
+
+  static serialize(output: VideoOutput) {
+    return new VideoPresenter(output);
   }
 }

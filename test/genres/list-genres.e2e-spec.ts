@@ -9,10 +9,26 @@ import { startApp } from "../../src/nest-modules/shared-module/testing/helpers";
 
 describe("GenresController (e2e)", () => {
   describe("/genres (GET)", () => {
+    const appHelper = startApp();
+    describe("unauthenticated", () => {
+      test("should return 401 when not authenticated", () => {
+        return request(appHelper.app.getHttpServer())
+          .get("/genres")
+          .send({})
+          .expect(401);
+      });
+
+      test("should return 403 when not authenticated as admin", () => {
+        return request(appHelper.app.getHttpServer())
+          .get("/genres")
+          .authenticate(appHelper.app, false)
+          .send({})
+          .expect(403);
+      });
+    });
     describe("should return genres sorted by created_at when request query is empty", () => {
       let genreRepo: IGenreRepository;
       let categoryRepo: ICategoryRepository;
-      const appHelper = startApp();
       const { relations, entitiesMap, arrange } =
         ListGenresFixture.arrangeIncrementedWithCreatedAt();
 
@@ -53,6 +69,7 @@ describe("GenresController (e2e)", () => {
           }));
           const response = await request(appHelper.app.getHttpServer())
             .get(`/genres/?${queryParams}`)
+            .authenticate(appHelper.app)
             .expect(200);
           expect(response.body).toStrictEqual({
             data: data,
@@ -66,15 +83,14 @@ describe("GenresController (e2e)", () => {
       let genreRepo: IGenreRepository;
       let categoryRepo: ICategoryRepository;
 
-      const nestApp = startApp();
       const { relations, entitiesMap, arrange } =
         ListGenresFixture.arrangeUnsorted();
 
       beforeEach(async () => {
-        genreRepo = nestApp.app.get<IGenreRepository>(
+        genreRepo = appHelper.app.get<IGenreRepository>(
           GENRES_PROVIDERS.REPOSITORIES.GENRE_REPOSITORY.provide,
         );
-        categoryRepo = nestApp.app.get<ICategoryRepository>(
+        categoryRepo = appHelper.app.get<ICategoryRepository>(
           CATEGORY_PROVIDERS.REPOSITORIES.CATEGORY_REPOSITORY.provide,
         );
         await categoryRepo.bulkInsert(
@@ -105,8 +121,9 @@ describe("GenresController (e2e)", () => {
             ),
             created_at: e.created_at.toISOString(),
           }));
-          const response = await request(nestApp.app.getHttpServer())
+          const response = await request(appHelper.app.getHttpServer())
             .get(`/genres/?${queryParams}`)
+            .authenticate(appHelper.app)
             .expect(200);
           expect(response.body).toStrictEqual({
             data: data,

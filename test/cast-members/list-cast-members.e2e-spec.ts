@@ -10,9 +10,25 @@ import { startApp } from "../../src/nest-modules/shared-module/testing/helpers";
 
 describe("CastMembersController (e2e)", () => {
   describe("/cast-members (GET)", () => {
+    const appHelper = startApp();
+    describe("unauthenticated", () => {
+      test("should return 401 when not authenticated", () => {
+        return request(appHelper.app.getHttpServer())
+          .get("/cast-members")
+          .send({})
+          .expect(401);
+      });
+
+      test("should return 403 when not authenticated as admin", () => {
+        return request(appHelper.app.getHttpServer())
+          .get("/cast-members")
+          .authenticate(appHelper.app, false)
+          .send({})
+          .expect(403);
+      });
+    });
     describe("should return cast members sorted by created_at when request query is empty", () => {
       let castMemberRepo: ICastMemberRepository;
-      const appHelper = startApp();
       const { entitiesMap, arrange } =
         ListCastMembersFixture.arrangeIncrementedWithCreatedAt();
 
@@ -29,6 +45,7 @@ describe("CastMembersController (e2e)", () => {
           const queryParams = new URLSearchParams(send_data as any).toString();
           return request(appHelper.app.getHttpServer())
             .get(`/cast-members/?${queryParams}`)
+            .authenticate(appHelper.app)
             .expect(200)
             .expect({
               data: expected.entities.map((e) =>
@@ -46,11 +63,10 @@ describe("CastMembersController (e2e)", () => {
 
     describe("should return cast members using paginate, filter and sort", () => {
       let castMemberRepo: ICastMemberRepository;
-      const nestApp = startApp();
       const { entitiesMap, arrange } = ListCastMembersFixture.arrangeUnsorted();
 
       beforeEach(async () => {
-        castMemberRepo = nestApp.app.get<ICastMemberRepository>(
+        castMemberRepo = appHelper.app.get<ICastMemberRepository>(
           CAST_MEMBERS_PROVIDERS.REPOSITORIES.CAST_MEMBER_REPOSITORY.provide,
         );
         await castMemberRepo.bulkInsert(Object.values(entitiesMap));
@@ -60,8 +76,9 @@ describe("CastMembersController (e2e)", () => {
         "when query params is $send_data",
         async ({ send_data, expected }) => {
           const queryParams = qs.stringify(send_data as any);
-          return request(nestApp.app.getHttpServer())
+          return request(appHelper.app.getHttpServer())
             .get(`/cast-members/?${queryParams}`)
+            .authenticate(appHelper.app)
             .expect(200)
             .expect({
               data: expected.entities.map((e) =>

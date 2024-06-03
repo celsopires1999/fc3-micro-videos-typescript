@@ -40,20 +40,20 @@ export class UpdateVideoInput {
   @Min(1900)
   @IsInt()
   @IsOptional()
-  year_launched: number;
+  year_launched?: number;
 
   @Min(1)
   @IsInt()
   @IsOptional()
-  duration: number;
+  duration?: number;
 
   @IsString()
   @IsOptional()
-  rating: RatingValues;
+  rating?: RatingValues;
 
   @IsBoolean()
   @IsOptional()
-  is_opened: boolean;
+  is_opened?: boolean;
 
   @IsUUID("4", { each: true })
   @IsArray()
@@ -76,7 +76,7 @@ export class UpdateVideoInput {
     props.title && (this.title = props.title);
     props.description && (this.description = props.description);
     props.year_launched && (this.year_launched = props.year_launched);
-    props.duration && (this.duration = props.duration);
+    props.duration !== undefined && (this.duration = props.duration);
     props.rating && (this.rating = props.rating);
     props.is_opened !== null &&
       props.is_opened !== undefined &&

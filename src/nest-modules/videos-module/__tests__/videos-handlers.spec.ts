@@ -1,7 +1,5 @@
 import { UnitOfWorkFakeInMemory } from "@core/shared/infra/db/in-memory/fake-unit-of-work-in-memory";
 import { VideoAudioMediaUploadedIntegrationEvent } from "@core/video/domain/domain-events/video-audio-media-replaced.event";
-import { AmqpConnection } from "@golevelup/nestjs-rabbitmq";
-import { DynamicModule } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { Test, TestingModule } from "@nestjs/testing";
 import { AuthModule } from "../../auth-module/auth.module";
@@ -10,25 +8,8 @@ import { DatabaseModule } from "../../database-module/database.module";
 import { EventModule } from "../../event-module/event.module";
 import { SharedModule } from "../../shared-module/shared.module";
 import { UseCaseModule } from "../../use-case-module/use-case.module";
+import { RabbitmqModuleFake } from "../testing/rabbitmq-module-fake";
 import { VideosModule } from "../videos.module";
-
-class RabbitmqModuleFake {
-  static forRoot(): DynamicModule {
-    return {
-      module: RabbitmqModuleFake,
-      global: true,
-      providers: [
-        {
-          provide: AmqpConnection,
-          useValue: {
-            publish: jest.fn(),
-          },
-        },
-      ],
-      exports: [AmqpConnection],
-    };
-  }
-}
 
 describe("VideosModule Unit Tests", () => {
   let module: TestingModule;

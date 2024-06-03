@@ -11,7 +11,9 @@ import { IUnitOfWork } from "@core/shared/domain/repository/unit-of-work.interfa
 import { UnitOfWorkSequelize } from "@core/shared/infra/db/sequelize/unit-of-work-sequelize";
 import { PublishVideoMediaReplacedInQueueHandler } from "@core/video/application/handlers/publish-video-media-replaced-in-queue.handler";
 import { CreateVideoUseCase } from "@core/video/application/use-cases/create-video/create-video.use-case";
+import { DeleteVideoUseCase } from "@core/video/application/use-cases/delete-video/delete-video.use-case";
 import { GetVideoUseCase } from "@core/video/application/use-cases/get-video/get-video.use-case";
+import { ListVideosUseCase } from "@core/video/application/use-cases/list-videos/list-videos.use-case";
 import { ProcessAudioVideoMediasUseCase } from "@core/video/application/use-cases/process-audio-video-medias/process-audio-video-medias.use-case";
 import { UpdateVideoUseCase } from "@core/video/application/use-cases/update-video/update-video.use-case";
 import { UploadAudioVideoMediasUseCase } from "@core/video/application/use-cases/upload-audio-video-medias/upload-audio-video-medias.use-case";
@@ -140,6 +142,35 @@ export const USE_CASES = {
     provide: ProcessAudioVideoMediasUseCase,
     useFactory: (uow: IUnitOfWork, videoRepo: IVideoRepository) => {
       return new ProcessAudioVideoMediasUseCase(uow, videoRepo);
+    },
+    inject: ["UnitOfWork", REPOSITORIES.VIDEO_REPOSITORY.provide],
+  },
+  LIST_VIDEOS_USE_CASE: {
+    provide: ListVideosUseCase,
+    useFactory: (
+      videoRepo: IVideoRepository,
+      categoryRepo: ICategoryRepository,
+      genreRepo: IGenreRepository,
+      castMemberRepo: ICastMemberRepository,
+    ) => {
+      return new ListVideosUseCase(
+        videoRepo,
+        categoryRepo,
+        genreRepo,
+        castMemberRepo,
+      );
+    },
+    inject: [
+      REPOSITORIES.VIDEO_REPOSITORY.provide,
+      CATEGORY_PROVIDERS.REPOSITORIES.CATEGORY_REPOSITORY.provide,
+      GENRES_PROVIDERS.REPOSITORIES.GENRE_REPOSITORY.provide,
+      CAST_MEMBERS_PROVIDERS.REPOSITORIES.CAST_MEMBER_REPOSITORY.provide,
+    ],
+  },
+  DELETE_VIDEO_USE_CASE: {
+    provide: DeleteVideoUseCase,
+    useFactory: (uow: IUnitOfWork, videoRepo: IVideoRepository) => {
+      return new DeleteVideoUseCase(uow, videoRepo);
     },
     inject: ["UnitOfWork", REPOSITORIES.VIDEO_REPOSITORY.provide],
   },

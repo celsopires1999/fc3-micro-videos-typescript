@@ -15,8 +15,25 @@ describe("CastMembersController (e2e)", () => {
   const uuid = "9366b7dc-2d71-4799-b91c-c64adb205104";
 
   describe("/cast-members/:id (PATCH)", () => {
+    const appHelper = startApp();
+    describe("unauthenticated", () => {
+      test("should return 401 when not authenticated", () => {
+        return request(appHelper.app.getHttpServer())
+          .patch("/cast-members/88ff2587-ce5a-4769-a8c6-1d63d29c5f7a")
+          .send({})
+          .expect(401);
+      });
+
+      test("should return 403 when not authenticated as admin", () => {
+        return request(appHelper.app.getHttpServer())
+          .patch("/cast-members/88ff2587-ce5a-4769-a8c6-1d63d29c5f7a")
+          .authenticate(appHelper.app, false)
+          .send({})
+          .expect(403);
+      });
+    });
+
     describe("should give a response error when id is invalid or not found", () => {
-      const appHelper = startApp();
       const faker = CastMember.fake().anActor();
       const arrange = [
         {
@@ -45,6 +62,7 @@ describe("CastMembersController (e2e)", () => {
         async ({ id, send_data, expected }) => {
           return request(appHelper.app.getHttpServer())
             .patch(`/cast-members/${id}`)
+            .authenticate(appHelper.app)
             .send(send_data)
             .expect(expected.statusCode)
             .expect(expected);
@@ -53,7 +71,6 @@ describe("CastMembersController (e2e)", () => {
     });
 
     describe("should give a response error with 422 when request body is invalid", () => {
-      const appHelper = startApp();
       const invalidRequest = UpdateCastMemberFixture.arrangeInvalidRequest();
       const arrange = Object.keys(invalidRequest).map((key) => ({
         label: key,
@@ -62,6 +79,7 @@ describe("CastMembersController (e2e)", () => {
       test.each(arrange)("when body is $label", ({ value }) => {
         return request(appHelper.app.getHttpServer())
           .patch(`/cast-members/${uuid}`)
+          .authenticate(appHelper.app)
           .send(value.send_data)
           .expect(422)
           .expect(value.expected);
@@ -69,7 +87,6 @@ describe("CastMembersController (e2e)", () => {
     });
 
     describe("should a response error with 422 when throw EntityValidationError", () => {
-      const appHelper = startApp();
       const validationError =
         UpdateCastMemberFixture.arrangeForEntityValidationError();
       const arrange = Object.keys(validationError).map((key) => ({
@@ -88,6 +105,7 @@ describe("CastMembersController (e2e)", () => {
         await castMemberRepo.insert(castMember);
         return request(appHelper.app.getHttpServer())
           .patch(`/cast-members/${castMember.cast_member_id.id}`)
+          .authenticate(appHelper.app)
           .send(value.send_data)
           .expect(422)
           .expect(value.expected);
@@ -95,7 +113,6 @@ describe("CastMembersController (e2e)", () => {
     });
 
     describe("should update a cast member", () => {
-      const appHelper = startApp();
       const arrange = UpdateCastMemberFixture.arrangeForUpdate();
       let castMemberRepo: ICastMemberRepository;
 
@@ -112,6 +129,7 @@ describe("CastMembersController (e2e)", () => {
 
           const res = await request(appHelper.app.getHttpServer())
             .patch(`/cast-members/${castMemberCreated.cast_member_id.id}`)
+            .authenticate(appHelper.app)
             .send(send_data)
             .expect(200);
           const keyInResponse = UpdateCastMemberFixture.keysInResponse;

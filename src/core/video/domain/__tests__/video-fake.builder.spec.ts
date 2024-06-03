@@ -63,12 +63,11 @@ describe("VideoFakerBuilder Unit Tests", () => {
     });
 
     test("should call the word method", () => {
-      const chance = Chance();
-      const spyWordMethod = jest.spyOn(chance, "word");
+      const chance = Chance.Chance();
+      const spyMethod = jest.spyOn(chance, "word");
       faker["chance"] = chance;
       faker.build();
-
-      expect(spyWordMethod).toHaveBeenCalled();
+      expect(spyMethod).toHaveBeenCalled();
     });
 
     test("withTitle", () => {
@@ -77,7 +76,7 @@ describe("VideoFakerBuilder Unit Tests", () => {
       expect(faker["_title"]).toBe("test title");
 
       faker.withTitle(() => "test title");
-      //@ts-expect-error title is callable
+      //@ts-expect-error _title is callable
       expect(faker["_title"]()).toBe("test title");
 
       expect(faker.title).toBe("test title");
@@ -108,13 +107,306 @@ describe("VideoFakerBuilder Unit Tests", () => {
     });
   });
 
+  describe("description prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("should be a function", () => {
+      expect(typeof faker["_description"]).toBe("function");
+    });
+
+    test("should call the paragraph method", () => {
+      const chance = Chance.Chance();
+      const spyMethod = jest.spyOn(chance, "paragraph");
+      faker["chance"] = chance;
+      faker.build();
+      expect(spyMethod).toHaveBeenCalledTimes(1);
+    });
+
+    test("withDescription", () => {
+      const $this = faker.withDescription("test description");
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_description"]).toBe("test description");
+      faker.withDescription(() => "test description");
+      //@ts-expect-error _description is callable
+      expect(faker["_description"]()).toBe("test description");
+
+      expect(faker.description).toBe("test description");
+    });
+
+    test("should pass index to description factory", () => {
+      faker.withDescription((index) => `test description ${index}`);
+      const category = faker.build();
+      expect(category.description).toBe(`test description 0`);
+
+      const fakerMany = VideoFakeBuilder.theVideosWithoutMedias(2);
+      fakerMany.withDescription((index) => `test description ${index}`);
+      const videos = fakerMany.build();
+
+      expect(videos[0].description).toBe(`test description 0`);
+      expect(videos[1].description).toBe(`test description 1`);
+    });
+  });
+
+  describe("year_launched prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("should be a function", () => {
+      expect(typeof faker["_year_launched"]).toBe("function");
+    });
+
+    test("should call the year method", () => {
+      const chance = Chance.Chance();
+      const spyMethod = jest.spyOn(chance, "year");
+      faker["chance"] = chance;
+      faker.build();
+      expect(spyMethod).toHaveBeenCalled();
+    });
+
+    test("withYearLaunched", () => {
+      const $this = faker.withYearLaunched(1950);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_year_launched"]).toBe(1950);
+      faker.withYearLaunched(() => 1951);
+      //@ts-expect-error _year_launched is callable
+      expect(faker["_year_launched"]()).toBe(1951);
+
+      expect(faker.year_launched).toBe(1951);
+    });
+
+    test("should pass index to year_launched factory", () => {
+      faker.withYearLaunched((index) => 1950 + index);
+      const video = faker.build();
+      expect(video.year_launched).toBe(1950);
+
+      const fakerMany = VideoFakeBuilder.theVideosWithoutMedias(2);
+      fakerMany.withYearLaunched((index) => 1950 + index);
+      const videos = fakerMany.build();
+
+      expect(videos[0].year_launched).toBe(1950);
+      expect(videos[1].year_launched).toBe(1951);
+    });
+  });
+
+  describe("duration prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("should be a function", () => {
+      expect(typeof faker["_duration"]).toBe("function");
+    });
+
+    test("should call the integer method", () => {
+      const chance = Chance.Chance();
+      const spyMethod = jest.spyOn(chance, "integer");
+      faker["chance"] = chance;
+      faker.build();
+      expect(spyMethod).toHaveBeenCalled();
+    });
+
+    test("withDuration", () => {
+      const $this = faker.withDuration(200);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_duration"]).toBe(200);
+      faker.withDuration(() => 201);
+      //@ts-expect-error _duration is callable
+      expect(faker["_duration"]()).toBe(201);
+
+      expect(faker.duration).toBe(201);
+    });
+
+    test("should pass index to duration factory", () => {
+      faker.withDuration((index) => 200 + index);
+      const video = faker.build();
+      expect(video.duration).toBe(200);
+
+      const fakerMany = VideoFakeBuilder.theVideosWithoutMedias(2);
+      fakerMany.withDuration((index) => 200 + index);
+      const videos = fakerMany.build();
+
+      expect(videos[0].duration).toBe(200);
+      expect(videos[1].duration).toBe(201);
+    });
+  });
+
+  describe("rating prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("should be a function", () => {
+      expect(typeof faker["_rating"]).toBe("function");
+    });
+
+    test("withRating", () => {
+      const $this = faker.withRating(Rating.create10());
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_rating"]).toEqual(Rating.create10());
+      faker.withRating(() => Rating.create14());
+      //@ts-expect-error _rating is callable
+      expect(faker["_rating"]()).toEqual(Rating.create14());
+
+      expect(faker.rating).toEqual(Rating.create14());
+    });
+
+    test("should pass index to rating factory", () => {
+      faker.withRating((index) =>
+        index % 2 === 0 ? Rating.createRL() : Rating.create10(),
+      );
+      const video = faker.build();
+      expect(video.rating).toEqual(Rating.createRL());
+
+      const fakerMany = VideoFakeBuilder.theVideosWithoutMedias(2);
+      fakerMany.withRating((index) =>
+        index % 2 === 0 ? Rating.createRL() : Rating.create10(),
+      );
+      const videos = fakerMany.build();
+
+      expect(videos[0].rating).toEqual(Rating.createRL());
+      expect(videos[1].rating).toEqual(Rating.create10());
+    });
+  });
+
+  describe("is_opened prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("should be a function", () => {
+      expect(typeof faker["_opened"]).toBe("function");
+    });
+
+    test("withMarkAsOpened", () => {
+      const $this = faker.withMarkAsOpened();
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_opened"]).toBeTruthy();
+      expect(faker.is_opened).toBeTruthy();
+    });
+
+    test("withMarkAsNotOpened", () => {
+      const $this = faker.withMarkAsNotOpened();
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_opened"]).toBeFalsy();
+      expect(faker.is_opened).toBeFalsy();
+    });
+  });
+
+  describe("banner prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("withBanner", () => {
+      const banner1 = new Banner({
+        name: "banner1.png",
+        location: "path-banner1",
+      });
+      const $this = faker.withBanner(banner1);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+
+      expect(faker["_banner"]).toEqual(banner1);
+
+      const banner2 = new Banner({
+        name: "banner2.png",
+        location: "path-banner2",
+      });
+      faker.withBanner(() => banner2);
+      //@ts-expect-error _rating is callable
+      expect(faker["_banner"]()).toEqual(banner2);
+
+      expect(faker.banner).toEqual(banner2);
+    });
+  });
+
+  describe("thumbnail prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("withThumbnail", () => {
+      const thumbnail1 = new Thumbnail({
+        name: "thumbnail1.png",
+        location: "path-thumbnail1",
+      });
+      const $this = faker.withThumbnail(thumbnail1);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+
+      expect(faker["_thumbnail"]).toEqual(thumbnail1);
+
+      const thumbnail2 = new Thumbnail({
+        name: "thumbnail2.png",
+        location: "path-thumbnail2",
+      });
+      faker.withThumbnail(() => thumbnail2);
+      //@ts-expect-error _rating is callable
+      expect(faker["_thumbnail"]()).toEqual(thumbnail2);
+
+      expect(faker.thumbnail).toEqual(thumbnail2);
+    });
+  });
+
+  describe("thumbnail_half prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("withThumbnailHalf", () => {
+      const thumbnail_half1 = new ThumbnailHalf({
+        name: "thumbnail_half1.png",
+        location: "path-thumbnail_half1",
+      });
+      const $this = faker.withThumbnailHalf(thumbnail_half1);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+
+      expect(faker["_thumbnail_half"]).toEqual(thumbnail_half1);
+
+      const thumbnail_half2 = new ThumbnailHalf({
+        name: "thumbnail_half2.png",
+        location: "path-thumbnail_half2",
+      });
+      faker.withThumbnailHalf(() => thumbnail_half2);
+      //@ts-expect-error _rating is callable
+      expect(faker["_thumbnail_half"]()).toEqual(thumbnail_half2);
+
+      expect(faker.thumbnail_half).toEqual(thumbnail_half2);
+    });
+  });
+
+  describe("trailer prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("withTrailer", () => {
+      const trailer1 = Trailer.create({
+        name: "trailer1.png",
+        raw_location: "path-trailer1",
+      });
+      const $this = faker.withTrailer(trailer1);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+
+      expect(faker["_trailer"]).toEqual(trailer1);
+
+      const trailer2 = Trailer.create({
+        name: "trailer2.png",
+        raw_location: "path-trailer2",
+      });
+      faker.withTrailer(() => trailer2);
+      //@ts-expect-error _rating is callable
+      expect(faker["_trailer"]()).toEqual(trailer2);
+
+      expect(faker.trailer).toEqual(trailer2);
+    });
+  });
+
+  describe("video prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    test("withTrailer", () => {
+      const video1 = Trailer.create({
+        name: "video1.png",
+        raw_location: "path-video1",
+      });
+      const $this = faker.withVideo(video1);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+
+      expect(faker["_video"]).toEqual(video1);
+
+      const video2 = Trailer.create({
+        name: "video2.png",
+        raw_location: "path-video2",
+      });
+      faker.withVideo(() => video2);
+      //@ts-expect-error _rating is callable
+      expect(faker["_video"]()).toEqual(video2);
+
+      expect(faker.video).toEqual(video2);
+    });
+  });
+
   describe("categories_id prop", () => {
     const faker = VideoFakeBuilder.aVideoWithoutMedias();
     it("should be empty", () => {
       expect(faker["_categories_id"]).toBeInstanceOf(Array);
     });
 
-    test("withCategoryId", () => {
+    test("addCategoryId", () => {
       const categoryId1 = new CategoryId();
       const $this = faker.addCategoryId(categoryId1);
       expect($this).toBeInstanceOf(VideoFakeBuilder);
@@ -147,6 +439,90 @@ describe("VideoFakerBuilder Unit Tests", () => {
 
       expect(genres[1].categories_id.get(categoriesId[1].id)).toBe(
         categoriesId[1],
+      );
+    });
+  });
+
+  describe("genres_id prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    it("should be empty", () => {
+      expect(faker["_genres_id"]).toBeInstanceOf(Array);
+    });
+
+    test("addGenreId", () => {
+      const genreId1 = new GenreId();
+      const $this = faker.addGenreId(genreId1);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_genres_id"]).toStrictEqual([genreId1]);
+
+      const genreId2 = new GenreId();
+      faker.addGenreId(() => genreId2);
+
+      expect([
+        faker["_genres_id"][0],
+        //@ts-expect-error _genres_id is callable
+        faker["_genres_id"][1](),
+      ]).toStrictEqual([genreId1, genreId2]);
+    });
+
+    it("should pass index to genres_id factory", () => {
+      const genresId = [new GenreId(), new GenreId()];
+      faker.addGenreId((index) => genresId[index]);
+      const genre = faker.build();
+
+      expect(genre.genres_id.get(genresId[0].id)).toBe(genresId[0]);
+
+      const fakerMany = VideoFakeBuilder.theVideosWithoutMedias(2);
+      fakerMany.addGenreId((index) => genresId[index]);
+      const genres = fakerMany.build();
+
+      expect(genres[0].genres_id.get(genresId[0].id)).toBe(genresId[0]);
+
+      expect(genres[1].genres_id.get(genresId[1].id)).toBe(genresId[1]);
+    });
+  });
+
+  describe("cast_members_id prop", () => {
+    const faker = VideoFakeBuilder.aVideoWithoutMedias();
+    it("should be empty", () => {
+      expect(faker["_cast_members_id"]).toBeInstanceOf(Array);
+    });
+
+    test("addCastMemberId", () => {
+      const castMemberId1 = new CastMemberId();
+      const $this = faker.addCastMemberId(castMemberId1);
+      expect($this).toBeInstanceOf(VideoFakeBuilder);
+      expect(faker["_cast_members_id"]).toStrictEqual([castMemberId1]);
+
+      const castMemberId2 = new CastMemberId();
+      faker.addCastMemberId(() => castMemberId2);
+
+      expect([
+        faker["_cast_members_id"][0],
+        //@ts-expect-error _cast_members_id is callable
+        faker["_cast_members_id"][1](),
+      ]).toStrictEqual([castMemberId1, castMemberId2]);
+    });
+
+    it("should pass index to cast_members_id factory", () => {
+      const castMembersId = [new CastMemberId(), new CastMemberId()];
+      faker.addCastMemberId((index) => castMembersId[index]);
+      const genre = faker.build();
+
+      expect(genre.cast_members_id.get(castMembersId[0].id)).toBe(
+        castMembersId[0],
+      );
+
+      const fakerMany = VideoFakeBuilder.theVideosWithoutMedias(2);
+      fakerMany.addCastMemberId((index) => castMembersId[index]);
+      const castMembers = fakerMany.build();
+
+      expect(castMembers[0].cast_members_id.get(castMembersId[0].id)).toBe(
+        castMembersId[0],
+      );
+
+      expect(castMembers[1].cast_members_id.get(castMembersId[1].id)).toBe(
+        castMembersId[1],
       );
     });
   });

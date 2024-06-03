@@ -12,6 +12,25 @@ import { startApp } from "../../src/nest-modules/shared-module/testing/helpers";
 
 describe("GenresController (e2e)", () => {
   describe("/genres (POST)", () => {
+    describe("unauthenticated", () => {
+      const appHelper = startApp();
+
+      test("should return 401 when not authenticated", () => {
+        return request(appHelper.app.getHttpServer())
+          .post("/genres")
+          .send({})
+          .expect(401);
+      });
+
+      test("should return 403 when not authenticated as admin", () => {
+        return request(appHelper.app.getHttpServer())
+          .post("/genres")
+          .authenticate(appHelper.app, false)
+          .send({})
+          .expect(403);
+      });
+    });
+
     describe("should return a response error with 422 when request body is invalid", () => {
       const appHelper = startApp();
       const invalidRequest = CreateGenreFixture.arrangeInvalidRequest();
@@ -22,6 +41,7 @@ describe("GenresController (e2e)", () => {
       test.each(arrange)("when body is $label", ({ value }) => {
         return request(appHelper.app.getHttpServer())
           .post("/genres")
+          .authenticate(appHelper.app)
           .send(value.send_data)
           .expect(422)
           .expect(value.expected);
@@ -29,7 +49,7 @@ describe("GenresController (e2e)", () => {
     });
 
     describe("should return a response error with 422 when throw EntityValidationError", () => {
-      const app = startApp();
+      const appHelper = startApp();
       const validationErrors =
         CreateGenreFixture.arrangeForEntityValidationError();
       const arrange = Object.keys(validationErrors).map((key) => ({
@@ -37,8 +57,9 @@ describe("GenresController (e2e)", () => {
         value: validationErrors[key],
       }));
       test.each(arrange)("when body is $label", ({ value }) => {
-        return request(app.app.getHttpServer())
+        return request(appHelper.app.getHttpServer())
           .post("/genres")
+          .authenticate(appHelper.app)
           .send(value.send_data)
           .expect(422)
           .expect(value.expected);
@@ -46,15 +67,15 @@ describe("GenresController (e2e)", () => {
     });
 
     describe("should create a genre", () => {
-      const app = startApp();
+      const appHelper = startApp();
       const arrange = CreateGenreFixture.arrangeForSave();
       let genreRepo: IGenreRepository;
       let categoryRepo: ICategoryRepository;
       beforeEach(async () => {
-        genreRepo = app.app.get<IGenreRepository>(
+        genreRepo = appHelper.app.get<IGenreRepository>(
           GENRES_PROVIDERS.REPOSITORIES.GENRE_REPOSITORY.provide,
         );
-        categoryRepo = app.app.get<ICategoryRepository>(
+        categoryRepo = appHelper.app.get<ICategoryRepository>(
           CATEGORY_PROVIDERS.REPOSITORIES.CATEGORY_REPOSITORY.provide,
         );
       });
@@ -62,8 +83,9 @@ describe("GenresController (e2e)", () => {
         "when body is $send_data",
         async ({ send_data, expected, relations }) => {
           await categoryRepo.bulkInsert(relations.categories);
-          const res = await request(app.app.getHttpServer())
+          const res = await request(appHelper.app.getHttpServer())
             .post("/genres")
+            .authenticate(appHelper.app)
             .send(send_data)
             .expect(201);
           const keyInResponse = CreateGenreFixture.keysInResponse;
